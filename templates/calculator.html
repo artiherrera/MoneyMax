@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Calculadora {{ producto.nombre }} - {{ plazo_info.nombre }} | MoneyMax
+{% endblock %}
+
+{% block head %}
+<style>
+/* ──────────── ESTILOS ──────────── */
+.product-header{background:linear-gradient(135deg,{{ producto.color_fondo }},{{ producto.color_fondo }}dd);color:#fff;padding:2rem 0}
+.calculator-container{display:grid;grid-template-columns:1fr 1fr;gap:3rem;max-width:1200px;margin:0 auto;padding:3rem 2rem}
+.form-section,.results-section{background:#fff;border-radius:16px;padding:2rem;box-shadow:0 4px 6px rgba(0,0,0,.05);border:1px solid #e2e8f0}
+.form-group{margin-bottom:1.5rem}.form-label{display:block;font-weight:600;color:#2d3748;margin-bottom:.5rem;font-size:.9rem}
+.form-input{width:100%;padding:.75rem 1rem;border:2px solid #e2e8f0;border-radius:8px;font-size:1rem;transition:border-color .3s}
+.form-input:focus{outline:none;border-color:{{ producto.color_fondo }};box-shadow:0 0 0 3px rgba(66,153,225,.1)}
+.radio-group{display:flex;gap:1rem;margin-top:.5rem}.radio-option{flex:1;position:relative}
+.radio-input{position:absolute;opacity:0;pointer-events:none}
+.radio-label{display:block;padding:1rem;border:2px solid #e2e8f0;border-radius:8px;text-align:center;cursor:pointer;transition:.3s;font-weight:500}
+.radio-input:checked+.radio-label{border-color:{{ producto.color_fondo }};background:linear-gradient(135deg,{{ producto.color_fondo }}10,{{ producto.color_fondo }}05);color:{{ producto.color_fondo }}}
+.calculate-button{width:100%;background:linear-gradient(135deg,{{ producto.color_fondo }},{{ producto.color_fondo }}dd);color:#fff;border:none;padding:1rem 2rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:.3s}
+.calculate-button:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+.calculate-button:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.result-card{background:linear-gradient(135deg,#f8fafc,#fff);border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;margin-bottom:1rem;text-align:center}
+.result-amount{font-size:2rem;font-weight:800;color:{{ producto.color_fondo }};margin-bottom:.25rem}.result-label{color:#718096;font-size:.9rem;font-weight:500}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;margin:1.5rem 0}
+.metric-item{text-align:center;padding:1rem;background:#f7fafc;border-radius:8px}.metric-value{font-size:1.1rem;font-weight:700;color:#2d3748}
+.metric-label{font-size:.8rem;color:#718096;margin-top:.25rem}
+.chart-container{margin:2rem 0;min-height:400px}.table-container{margin-top:2rem;max-height:300px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px}
+.data-table{width:100%;border-collapse:collapse}.data-table th{background:#f7fafc;padding:.75rem;text-align:left;font-weight:600;color:#2d3748;font-size:.85rem;border-bottom:1px solid #e2e8f0;position:sticky;top:0}
+.data-table td{padding:.75rem;border-bottom:1px solid #f1f3f4;font-size:.85rem}
+.back-button{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.2);color:#fff;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:500;transition:.3s;margin-bottom:1rem}
+.back-button:hover{background:rgba(255,255,255,.3);transform:translateX(-2px)}
+.steps-indicator{display:flex;justify-content:center;align-items:center;gap:1rem;margin-bottom:1rem}
+.step{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff}
+.step.active{background:{{ producto.color_fondo }}}.step.completed{background:#48bb78}
+.step-divider{width:40px;height:2px;background:#cbd5e0}.step-divider.completed{background:#48bb78}
+.error-message{background:#fed7d7;color:#c53030;padding:.75rem 1rem;border-radius:6px;font-size:.9rem;margin-top:.5rem;display:none}
+.loading{display:none;text-align:center;color:#718096;font-style:italic}
+@media (max-width:768px){.calculator-container{grid-template-columns:1fr;gap:2rem;padding:2rem 1rem}.radio-group{flex-direction:column}.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ──────────── ENCABEZADO DE PRODUCTO ──────────── -->
+<section class="product-header">
+    <div class="container">
+        <a href="/calculator/{{ producto_id }}" class="back-button">← Cambiar plazo</a>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <div style="display:flex;align-items:center;gap:2rem">
+                <div style="width:80px;height:80px;background:rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center">
+                    {% if producto.logo %}
+                        <img src="{{ producto.logo }}" alt="{{ producto.nombre }}" style="width:60px;height:60px;object-fit:contain;border-radius:8px">
+                    {% else %}
+                        <div style="font-size:2rem;font-weight:bold;color:#fff">
+                            {% set w = producto.nombre.split() %}
+                            {% if w|length == 1 %}
+                                {{ producto.nombre[:2].upper() }}
+                            {% else %}
+                                {{ w[0][0].upper() + w[1][0].upper() }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <h1 style="font-size:2rem;font-weight:700;margin-bottom:.25rem">{{ producto.nombre }}</h1>
+                    <p style="font-size:1.1rem;opacity:.9;margin-bottom:.25rem">
+                        {{ plazo_info.nombre }} – {{ "%.2f"|format(plazo_info.tasa_anual) }} % anual
+                    </p>
+                    <p style="font-size:.9rem;opacity:.8">{{ plazo_info.descripcion }}</p>
+                </div>
+            </div>
+
+            <div style="text-align:right;color:rgba(255,255,255,.8);font-size:.9rem">
+                Paso 3 de 3<br><strong>Cálculo</strong>
+            </div>
+        </div>
+
+        <div class="steps-indicator">
+            <div class="step completed">1</div>
+            <div class="step-divider completed"></div>
+            <div class="step completed">2</div>
+            <div class="step-divider completed"></div>
+            <div class="step active">3</div>
+        </div>
+    </div>
+</section>
+
+<!-- ──────────── CALCULADORA ──────────── -->
+<section>
+    <div class="calculator-container">
+        <!-- FORMULARIO -->
+        <div class="form-section">
+            <h2 style="font-size:1.5rem;font-weight:700;color:#2d3748;margin-bottom:1.5rem">
+                Configura tu inversión
+            </h2>
+
+            <form id="calculatorForm">
+                <div class="form-group">
+                    <label class="form-label">Tipo de inversión</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="simple" name="tipo_inversion" value="simple"
+                                   class="radio-input" checked>
+                            <label for="simple" class="radio-label">
+                                <strong>Inversión única</strong><br><small>Un solo monto</small>
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="mensual" name="tipo_inversion" value="mensual"
+                                   class="radio-input">
+                            <label for="mensual" class="radio-label">
+                                <strong>Inversión mensual</strong><br><small>Aportaciones constantes</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="monto" class="form-label" id="montoLabel">Monto a invertir (MXN)</label>
+                    <input type="number" id="monto" name="monto" class="form-input"
+                           placeholder="1 000" value="1000"
+                           min="100" max="50000000" step="100" required>
+                    <div id="montoError" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="plazoMesesSelect" class="form-label">Plazo de inversión</label>
+                    <select id="plazoMesesSelect" name="plazo_meses" class="form-input"></select>
+                    <div style="font-size:.8rem;color:#718096;margin-top:.25rem">
+                        Plazo de la corrida financiera
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Plazo seleccionado</label>
+                    <div style="background:#f7fafc;padding:1rem;border-radius:8px;border:1px solid #e2e8f0">
+                        <div style="font-weight:600;color:#2d3748">{{ plazo_info.nombre }}</div>
+                        <div style="color:#718096;font-size:.9rem">
+                            {{ "%.2f"|format(plazo_info.tasa_anual) }} % anual
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:none">
+                    <button type="submit" class="calculate-button" id="calculateBtn">
+                        Calcular rendimiento
+                    </button>
+                </div>
+            </form>
+
+            <div id="loading" class="loading">Calculando…</div>
+        </div>
+
+        <!-- RESULTADOS -->
+        <div class="results-section">
+            <h2 style="font-size:1.5rem;font-weight:700;color:#2d3748;margin-bottom:1.5rem">
+                Resultados
+            </h2>
+
+            <div id="results" style="display:none">
+                <div class="result-card">
+                    <div class="result-amount" id="montoFinal">$0.00</div>
+                    <div class="result-label">Monto final</div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value" id="rendimientoTotal">$0.00</div>
+                        <div class="metric-label">Rendimiento</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="tasaEfectiva">0.00 %</div>
+                        <div class="metric-label">Tasa efectiva</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="montoInicial">$0.00</div>
+                        <div class="metric-label" id="montoInicialLabel">Inversión inicial</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="plazoMesesRes">0</div>
+                        <div class="metric-label">Meses</div>
+                    </div>
+                </div>
+
+                <div class="chart-container"><div id="chart"></div></div>
+
+                <div class="table-container">
+                    <table class="data-table" id="dataTable">
+                        <thead><tr id="tableHeaders"></tr></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="noResults" style="text-align:center;color:#718096;padding:3rem 0">
+                <div style="width:60px;height:60px;background:#f1f3f4;border-radius:50%;
+                            display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;opacity:.5">
+                    <div style="width:24px;height:24px;background:#cbd5e0;border-radius:4px"></div>
+                </div>
+                <p>Los resultados se calculan automáticamente</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ──────────── VARIABLES GLOBALES ──────────── */
+const productoId = '{{ producto_id }}';
+const plazoDias  = {{ plazo_dias }};
+const tasaAnual  = {{ plazo_info.tasa_anual }};
+const MAX_MESES  = 360;
+
+/* Utilidades DOM / dinero */
+const qs   = s => document.querySelector(s);
+const money= v => new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(v);
+
+/* ──────────── INIT ──────────── */
+document.addEventListener('DOMContentLoaded', () => {
+    initCalculator();
+    generatePlazoOptions();
+});
+
+/* ──────────── OPCIONES DE PLAZO ──────────── */
+function generatePlazoOptions(){
+    const sel=qs('#plazoMesesSelect'); sel.innerHTML='';
+    const opts=[];
+    for(let m=1;m<=MAX_MESES;m++){
+        if(m<=24) opts.push(m);
+        else if(m<=60 && m%6===0) opts.push(m);
+        else if(m%12===0) opts.push(m);
+    }
+    const instr=Math.ceil(plazoDias/30.44);
+    if(!opts.includes(instr)) opts.push(instr);
+    opts.sort((a,b)=>a-b).forEach(m=>{
+        const o=document.createElement('option'); o.value=m;
+        o.textContent=m===1?'1 mes':m===12?'1 año (12 meses)':m%12===0?`${m/12} años (${m} meses)`: `${m} meses`;
+        if(m===12) o.selected=true;
+        sel.appendChild(o);
+    });
+}
+
+/* ──────────── LISTENERS ──────────── */
+function initCalculator(){
+    document.querySelectorAll('input[name="tipo_inversion"]').forEach(i=>i.addEventListener('change',e=>{
+        updateFormLabels(e.target.value); calculateInvestment();
+    }));
+    qs('#monto').addEventListener('input',debounce(calculateInvestment,800));
+    qs('#plazoMesesSelect').addEventListener('change',calculateInvestment);
+    setTimeout(calculateInvestment,500);
+}
+
+/* Cambiar etiquetas según tipo */
+function updateFormLabels(tipo){
+    qs('#montoLabel').textContent = tipo==='mensual'?'Monto mensual (MXN)':'Monto a invertir (MXN)';
+    qs('#montoInicialLabel').textContent = tipo==='mensual'?'Total aportado':'Inversión inicial';
+    qs('#monto').placeholder='1 000';
+}
+
+/* ──────────── LLAMADA API ──────────── */
+async function calculateInvestment(){
+    const fd=new FormData(qs('#calculatorForm'));
+    const monto=parseFloat(fd.get('monto')), meses=parseInt(fd.get('plazo_meses'));
+    if(!monto||monto<100||!meses) return;
+
+    const payload={
+        producto_id:productoId, plazo_dias:plazoDias, plazo_meses_corrida:meses,
+        monto:monto, tipo_inversion:fd.get('tipo_inversion')
+    };
+    showLoading(true); clearErrors();
+    try{
+        const r=await fetch('/api/calcular',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!r.ok) throw new Error((await r.json()).error||r.status);
+        displayResults(await r.json());
+    }catch(e){
+        showError(e.message); qs('#results').style.display='none'; qs('#noResults').style.display='block';
+    }finally{ showLoading(false); }
+}
+
+/* ──────────── RESULTADOS ──────────── */
+function displayResults(resp){
+    const res=resp.resultado, tabla=resp.tabla_crecimiento;
+    qs('#results').style.display='block'; qs('#noResults').style.display='none';
+    qs('#montoFinal').textContent      =money(res.monto_final);
+    qs('#rendimientoTotal').textContent=money(res.rendimiento_total);
+    if(res.tipo_inversion==='simple'){
+        qs('#tasaEfectiva').textContent   =res.tasa_efectiva.toFixed(2)+' %';
+        qs('#montoInicial').textContent   =money(res.monto_inicial);
+        qs('#plazoMesesRes').textContent  =res.plazo_meses;
+    }else{
+        qs('#tasaEfectiva').textContent   =res.rendimiento_porcentual.toFixed(2)+' %';
+        qs('#montoInicial').textContent   =money(res.total_aportado);
+        qs('#plazoMesesRes').textContent  =res.num_meses;
+    }
+    createChart(tabla,res.tipo_inversion||'simple');
+    createTable(tabla,res.tipo_inversion||'simple');
+}
+
+/* ──────────── GRÁFICA ──────────── */
+function createChart(data,tipo){
+    const x=data.map(r=>r.mes); const traces=[];
+    if(tipo==='simple'){
+        traces.push({
+            x,y:data.map(r=>r.monto_inicial||0),
+            type:'scatter',mode:'lines',name:'Capital inicial',
+            line:{color:'#e2e8f0',width:2},fill:'tozeroy',
+            fillcolor:'rgba(226,232,240,.5)',stackgroup:'one'
+        });
+        traces.push({
+            x,y:data.map(r=>r.rendimiento||0),
+            type:'scatter',mode:'lines',name:'Intereses generados',
+            line:{color:'#48bb78',width:2},fill:'tonexty',
+            fillcolor:'rgba(72,187,120,.5)',stackgroup:'one'
+        });
+        traces.push({
+            x,y:data.map(r=>r.monto_total),
+            type:'scatter',mode:'lines+markers',name:'Monto total',
+            line:{color:'{{ producto.color_fondo }}',width:3},marker:{size:4}
+        });
+    }else{
+        traces.push({
+            x,y:data.map(r=>r.total_aportado||0),
+            type:'scatter',mode:'lines',name:'Capital aportado',
+            line:{color:'#e2e8f0',width:2},fill:'tozeroy',
+            fillcolor:'rgba(226,232,240,.5)',stackgroup:'one'
+        });
+        traces.push({
+            x,y:data.map(r=>r.total_rendimientos||0),
+            type:'scatter',mode:'lines',name:'Intereses generados',
+            line:{color:'#48bb78',width:2},fill:'tonexty',
+            fillcolor:'rgba(72,187,120,.5)',stackgroup:'one'
+        });
+        traces.push({
+            x,y:data.map(r=>r.monto_total),
+            type:'scatter',mode:'lines+markers',name:'Monto total',
+            line:{color:'{{ producto.color_fondo }}',width:3},marker:{size:4}
+        });
+    }
+    Plotly.newPlot('chart',traces,{
+        title:{text:`Evolución de tu inversión ${tipo==='mensual'?'mensual':'única'}`,font:{size:16,color:'#2d3748'}},
+        xaxis:{title:'Mes',gridcolor:'#f1f3f4'},yaxis:{title:'Monto (MXN)',tickformat:'$,.0f',gridcolor:'#f1f3f4'},
+        margin:{l:80,r:30,t:60,b:80},paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
+        font:{family:'Arial, sans-serif'},legend:{orientation:'h',y:-0.15,x:0.5,xanchor:'center'},hovermode:'x unified'
+    },{responsive:true,displayModeBar:false});
+}
+
+/* ──────────── TABLA ──────────── */
+function createTable(data,tipo){
+    const head=qs('#tableHeaders'), body=qs('#tableBody'); head.innerHTML=''; body.innerHTML='';
+    if(!data.length) return;
+    if(tipo==='simple'){
+        head.innerHTML='<th>Mes</th><th>Días</th><th>Inversión inicial</th><th>Rendimiento</th><th>Monto total</th>';
+        data.forEach(r=>body.insertAdjacentHTML('beforeend',`
+            <tr><td>${r.mes}</td><td>${r.dias}</td>
+                <td>${money(r.monto_inicial)}</td><td>${money(r.rendimiento)}</td>
+                <td><strong>${money(r.monto_total)}</strong></td></tr>`));
+    }else{
+        head.innerHTML='<th>Mes</th><th>Aportación</th><th>Total aportado</th><th>Rendimiento mes</th><th>Monto total</th>';
+        data.forEach(r=>body.insertAdjacentHTML('beforeend',`
+            <tr><td>${r.mes}</td><td>${money(r.aportacion)}</td>
+                <td>${money(r.total_aportado)}</td><td>${money(r.rendimiento_mes)}</td>
+                <td><strong>${money(r.monto_total)}</strong></td></tr>`));
+    }
+}
+
+/* ──────────── HELPERS ──────────── */
+function showLoading(b){qs('#loading').style.display=b?'block':'none';qs('#calculateBtn').disabled=b;}
+function showErrors(arr){const m=qs('#montoError');m.textContent=arr.join(', ');m.style.display='block';}
+function clearErrors(){qs('#montoError').style.display='none';}
+function showError(msg){alert('Error: '+msg);}
+function debounce(fn,w){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),w);};}
+</script>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}MoneyMax - Calculadora de Inversiones Mexicanas{% endblock %}
+
+{# --- estilos compactos --- #}
+{% block head %}
+<style>
+/* --- HERO --- */
+.hero            {padding: 2rem 0 1.25rem;}         /* antes: más grande */
+.hero-tag        {font-size: .9rem; margin-bottom:.5rem;}
+.hero-title      {font-size: 2.25rem; line-height:1.15; margin:0 0 .75rem;}
+.hero-divider    {width:60px; height:4px; background:var(--primary, #06b6d4); margin:0 auto 1rem;}
+.hero-subtitle   {font-size:1rem; max-width:28rem; margin:0 auto;}
+
+/* --- PRODUCTS --- */
+.products-section  {padding-top:1rem;}               /* reduce espacio encima de tarjetas */
+.products-container{max-width:1000px; margin:auto;}
+.products-grid     {display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
+
+.product-card      {background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem .75rem;
+                    cursor:pointer; transition:box-shadow .2s;}
+.product-card:hover{box-shadow:0 6px 12px rgba(0,0,0,.05);}
+.product-logo      {width:56px; height:56px; border-radius:8px; margin:0 auto .75rem; display:flex;
+                    align-items:center; justify-content:center; overflow:hidden;}
+.product-logo img  {width:100%; height:100%; object-fit:contain;}
+.product-logo-text {font-weight:700; color:#fff;}
+
+.product-name      {font-size:.95rem; font-weight:600; text-align:center; margin-bottom:.25rem;}
+.product-rate      {font-size:.85rem; text-align:center; color:#64748b;}
+
+.product-badge     {position:absolute; top:.5rem; right:.5rem; background:#34d399; color:#fff;
+                    font-size:.7rem; font-weight:600; padding:.2rem .5rem; border-radius:6px;}
+
+/* --- FEATURES --- */
+.features-section   {padding:3rem 0 2rem;}
+.features-container {max-width:900px; margin:auto; text-align:center;}
+.features-title     {font-size:1.75rem; margin-bottom:.25rem;}
+.features-subtitle  {font-size:1rem; margin-bottom:2rem; color:#6b7280;}
+.features-grid      {display:grid; gap:1.5rem; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+.feature-item       {background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem;}
+.feature-icon       {width:40px; height:40px; border-radius:50%; background:#06b6d4; color:#fff;
+                     display:flex; align-items:center; justify-content:center; margin:0 auto .75rem;}
+.feature-title      {font-size:1.05rem; font-weight:600; margin-bottom:.25rem;}
+.feature-description{font-size:.9rem; color:#6b7280;}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-tag">Simulador financiero</div>
+        
+        <h1 class="hero-title">
+            CALCULADORA DE<br>INVERSIONES
+        </h1>
+        
+        <div class="hero-divider"></div>
+        
+        <p class="hero-subtitle">
+            Compara y simula tus rendimientos financieros con precisión
+        </p>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section class="products-section">
+    <div class="products-container">
+        <div class="products-grid">
+            {% for producto_id, producto in productos.items() %}
+            <div class="product-card" onclick="window.location.href='/calculator/{{ producto_id }}'">
+                
+                {% if producto.badge %}
+                <div class="product-badge">{{ producto.badge }}</div>
+                {% endif %}
+                
+                <div class="product-logo" style="background: {{ producto.color_fondo }};">
+                    {% if producto.logo %}
+                        <img src="{{ producto.logo }}" alt="{{ producto.nombre }}">
+                    {% else %}
+                        <div class="product-logo-text">
+                            {% set words = producto.nombre.split() %}
+                            {% if words|length == 1 %}
+                                {{ producto.nombre[:2].upper() }}
+                            {% else %}
+                                {{ words[0][0].upper() + words[1][0].upper() }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="product-name">{{ producto.nombre }}</div>
+                
+                {% set max_tasa = producto.plazos.values() | map(attribute='tasa_anual') | max %}
+                <div class="product-rate">
+                    Hasta {{ "%.2f"|format(max_tasa) }} % anual
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="features-container">
+        <h2 class="features-title">¿Cómo funciona MoneyMax?</h2>
+        <p class="features-subtitle">
+            Simula tus inversiones de manera fácil y obtén resultados precisos
+        </p>
+        
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon"><span>1</span></div>
+                <h3 class="feature-title">Selecciona un producto</h3>
+                <p class="feature-description">Elige entre diferentes opciones de inversión mexicanas.</p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon"><span>2</span></div>
+                <h3 class="feature-title">Configura tu inversión</h3>
+                <p class="feature-description">Define monto, plazo y tipo de inversión.</p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon"><span>3</span></div>
+                <h3 class="feature-title">Obtén resultados</h3>
+                <p class="feature-description">Ve gráficas, tablas y proyecciones detalladas.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

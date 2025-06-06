@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}{{ producto.nombre }} - Selecciona tu plazo | MoneyMax{% endblock %}
+
+{% block head %}
+<style>
+.product-header {
+    background: linear-gradient(135deg, {{ producto.color_fondo }}, {{ producto.color_fondo }}dd);
+    color: white;
+    padding: 3rem 0;
+}
+
+.plazo-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.plazo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    border-color: {{ producto.color_fondo }};
+}
+
+.plazo-card.destacado {
+    border-color: {{ producto.color_fondo }};
+    background: linear-gradient(135deg, #f8fafc, #ffffff);
+}
+
+.plazo-nombre {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.plazo-tasa {
+    font-size: 2rem;
+    font-weight: 800;
+    color: {{ producto.color_fondo }};
+    margin-bottom: 0.5rem;
+}
+
+.plazo-descripcion {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(-2px);
+}
+
+.steps-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.step {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+}
+
+.step.active {
+    background: {{ producto.color_fondo }};
+}
+
+.step.inactive {
+    background: #cbd5e0;
+}
+
+.step-divider {
+    width: 40px;
+    height: 2px;
+    background: #cbd5e0;
+}
+
+.section-icon {
+    width: 24px;
+    height: 24px;
+    background: {{ producto.color_fondo }};
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+}
+
+.section-icon::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 2px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Product Header -->
+<section class="product-header">
+    <div class="container">
+        <a href="/" class="back-button">
+            ← Regresar
+        </a>
+        
+        <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+            <!-- Logo del producto -->
+            <div style="width: 100px; height: 100px; background: rgba(255, 255, 255, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                {% if producto.logo %}
+                    <img src="{{ producto.logo }}" alt="{{ producto.nombre }}" style="width: 80px; height: 80px; object-fit: contain; border-radius: 12px;">
+                {% else %}
+                    <div style="font-size: 2.5rem; font-weight: bold; color: white;">
+                        {% set words = producto.nombre.split() %}
+                        {% if words|length == 1 %}
+                            {{ producto.nombre[:2].upper() }}
+                        {% else %}
+                            {{ words[0][0].upper() + words[1][0].upper() }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Info del producto -->
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">{{ producto.nombre }}</h1>
+                <p style="font-size: 1.2rem; opacity: 0.9;">{{ producto.descripcion }}</p>
+            </div>
+        </div>
+        
+        <!-- Steps indicator -->
+        <div class="steps-indicator">
+            <div class="step active">1</div>
+            <div class="step-divider"></div>
+            <div class="step inactive">2</div>
+            <div class="step-divider"></div>
+            <div class="step inactive">3</div>
+        </div>
+        
+        <div style="text-align: right; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">
+            Paso 1 de 3<br>
+            <strong>Plazo</strong>
+        </div>
+    </div>
+</section>
+
+<!-- Plazo Selection -->
+<section style="padding: 4rem 0;">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2 style="font-size: 2rem; font-weight: 700; color: #2d3748; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                <span class="section-icon"></span>
+                Plazo
+            </h2>
+            <p style="font-size: 1.1rem; color: #718096;">
+                Selecciona el plazo de tu inversión
+            </p>
+        </div>
+        
+        <!-- Grid de plazos -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto;">
+            {% for plazo_dias, plazo_info in producto.plazos.items() %}
+            <div class="plazo-card {% if loop.first %}destacado{% endif %}" 
+                 onclick="window.location.href='/calculator/{{ producto_id }}/{{ plazo_dias }}'">
+                
+                <div class="plazo-nombre">{{ plazo_info.nombre }}</div>
+                <div class="plazo-tasa">{{ "%.2f"|format(plazo_info.tasa_anual) }}%</div>
+                <div class="plazo-descripcion">{{ plazo_info.descripcion }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Info adicional -->
+        <div style="background: #f7fafc; border-radius: 12px; padding: 2rem; margin-top: 3rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+            <h3 style="font-size: 1.2rem; font-weight: 600; color: #2d3748; margin-bottom: 1rem;">
+                Detalles del plazo
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+                <div>
+                    <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Plazo:</div>
+                    <div style="font-weight: 600; color: #2d3748;" id="selected-plazo">Selecciona un plazo</div>
+                </div>
+                
+                <div>
+                    <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Tasa anual:</div>
+                    <div style="font-weight: 600; color: {{ producto.color_fondo }};" id="selected-tasa">-</div>
+                </div>
+                
+                <div>
+                    <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Monto sugerido:</div>
+                    <div style="font-weight: 600; color: #2d3748;">$1,000.00</div>
+                </div>
+                
+                <div>
+                    <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Tipo de pago:</div>
+                    <div style="font-weight: 600; color: #2d3748;">Mensual</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Manejar selección de plazo
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.plazo-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            // Obtener información del plazo
+            const nombre = this.querySelector('.plazo-nombre').textContent;
+            const tasa = this.querySelector('.plazo-tasa').textContent;
+            
+            // Actualizar detalles
+            document.getElementById('selected-plazo').textContent = nombre;
+            document.getElementById('selected-tasa').textContent = tasa;
+        });
+    });
+    
+    // Resetear cuando el mouse sale del área
+    document.querySelector('.container').addEventListener('mouseleave', function() {
+        document.getElementById('selected-plazo').textContent = 'Selecciona un plazo';
+        document.getElementById('selected-tasa').textContent = '-';
+    });
+});
+</script>
+{% endblock %}

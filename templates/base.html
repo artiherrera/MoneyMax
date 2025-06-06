@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MoneyMax - Calculadora de Inversiones{% endblock %}</title>
+    
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234299e1'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/></svg>">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #4299e1, #667eea); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 16px; height: 16px; background: white; border-radius: 50%;"></div>
+                </div>
+                <span class="logo-text">MoneyMax</span>
+            </a>
+            
+            <div class="nav-links" style="display: flex; gap: 2rem;">
+                <a href="/" style="color: #718096; text-decoration: none; font-weight: 500;">Inicio</a>
+                <a href="/api/productos" style="color: #718096; text-decoration: none; font-weight: 500;">API</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-title">MoneyMax - Calculadora de inversiones mexicanas</p>
+            <p class="footer-text">
+                Las tasas mostradas son referenciales. Esta herramienta es solo para fines informativos.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
