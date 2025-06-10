@@ -45,7 +45,8 @@ def calcular_inversion_simple(monto_inicial, tasa_anual, plazo_dias):
         'tasa_anual': tasa_anual,
         'tasa_efectiva': round(tasa_efectiva, 2),
         'plazo_dias': plazo_dias,
-        'plazo_meses': round(plazo_dias / 30.44, 1)
+        'plazo_meses': round(plazo_dias / 30.44, 1),
+        'tipo_inversion': 'simple'
     }
 
 def calcular_inversion_mensual(monto_mensual, tasa_anual, num_meses):
@@ -78,35 +79,18 @@ def calcular_inversion_mensual(monto_mensual, tasa_anual, num_meses):
         'rendimiento_total': round(rendimiento_total, 2),
         'tasa_anual': tasa_anual,
         'num_meses': num_meses,
-        'rendimiento_porcentual': round((rendimiento_total / total_aportado) * 100, 2) if total_aportado > 0 else 0
+        'rendimiento_porcentual': round((rendimiento_total / total_aportado) * 100, 2) if total_aportado > 0 else 0,
+        'tipo_inversion': 'mensual'
     }
 
 def generar_tabla_crecimiento_simple(monto_inicial, tasa_anual, plazo_dias):
-    """Genera tabla de crecimiento mes a mes para inversión simple"""
-    
-    datos = []
-    tasa_diaria = (tasa_anual / 100) / 365
-    
-    # Generar datos mensuales
-    num_meses = max(1, int(plazo_dias / 30))
-    for mes in range(1, num_meses + 1):
-        dias_transcurridos = min(mes * 30, plazo_dias)
-        
-        if dias_transcurridos > plazo_dias:
-            break
-            
-        rendimiento_acumulado = monto_inicial * tasa_diaria * dias_transcurridos
-        monto_actual = monto_inicial + rendimiento_acumulado
-        
-        datos.append({
-            'mes': mes,
-            'dias': dias_transcurridos,
-            'monto_inicial': monto_inicial,
-            'rendimiento': round(rendimiento_acumulado, 2),
-            'monto_total': round(monto_actual, 2)
-        })
-    
-    return pd.DataFrame(datos)
+    """
+    Para inversión simple NO genera tabla de crecimiento
+    Solo retorna un DataFrame vacío ya que no hay evolución mes a mes
+    """
+    # Para inversión única no tiene sentido mostrar evolución
+    # ya que es un solo monto que se invierte una vez
+    return pd.DataFrame()
 
 def generar_tabla_crecimiento_mensual(monto_mensual, tasa_anual, num_meses):
     """Genera tabla de crecimiento mes a mes para inversión mensual"""
@@ -139,9 +123,15 @@ def generar_tabla_crecimiento_mensual(monto_mensual, tasa_anual, num_meses):
     
     return pd.DataFrame(datos)
 
-def validar_parametros_inversion(monto, plazo_dias, producto_id):
+def validar_parametros_inversion(monto, plazo_dias, producto_id, tipo_inversion='simple'):
     """
     Valida que los parámetros de inversión sean correctos
+    
+    Args:
+        monto: Monto a invertir (o monto mensual)
+        plazo_dias: Plazo en días del producto
+        producto_id: ID del producto
+        tipo_inversion: 'simple' o 'mensual'
     
     Returns:
         dict: {'valido': bool, 'errores': list}
@@ -149,12 +139,28 @@ def validar_parametros_inversion(monto, plazo_dias, producto_id):
     errores = []
     
     # Validar monto
+    try:
+        monto = float(monto)
+    except (ValueError, TypeError):
+        errores.append("El monto debe ser un número válido")
+        return {'valido': False, 'errores': errores}
+    
+    # Límites según tipo de inversión
+    if tipo_inversion == 'simple':
+        MONTO_MIN = 100
+        MONTO_MAX = 50_000_000
+        tipo_monto = "El monto a invertir"
+    else:
+        MONTO_MIN = 100
+        MONTO_MAX = 1_000_000  # Límite más bajo para mensualidades
+        tipo_monto = "El monto mensual"
+    
     if monto <= 0:
-        errores.append("El monto debe ser mayor a cero")
-    elif monto < 100:
-        errores.append("El monto mínimo es $100 MXN")
-    elif monto > 50000000:  # 50 millones
-        errores.append("El monto máximo es $50,000,000 MXN")
+        errores.append(f"{tipo_monto} debe ser mayor a cero")
+    elif monto < MONTO_MIN:
+        errores.append(f"{tipo_monto} mínimo es ${MONTO_MIN:,} MXN")
+    elif monto > MONTO_MAX:
+        errores.append(f"{tipo_monto} máximo es ${MONTO_MAX:,} MXN")
     
     # Validar plazo
     if plazo_dias < 0:
@@ -162,7 +168,7 @@ def validar_parametros_inversion(monto, plazo_dias, producto_id):
     elif plazo_dias > 3650:  # 10 años
         errores.append("El plazo máximo es 10 años")
     
-    # Validar producto (básico)
+    # Validar producto
     if not producto_id:
         errores.append("Debe especificar un producto")
     
@@ -199,3 +205,45 @@ def convertir_dias_a_meses(dias):
 def convertir_meses_a_dias(meses):
     """Convierte meses a días (promedio de 30.44 días por mes)"""
     return round(meses * 30.44)
+
+def calcular_comparacion_productos(monto, plazo_dias, productos_dict):
+    """
+    Compara el rendimiento entre diferentes productos para un mismo monto y plazo
+    
+    Args:
+        monto: Monto a invertir
+        plazo_dias: Plazo deseado
+        productos_dict: Diccionario con los productos
+    
+    Returns:
+        list: Lista de resultados ordenados por rendimiento
+    """
+    resultados = []
+    
+    for producto_id, producto in productos_dict.items():
+        # Buscar el plazo más cercano
+        plazos_disponibles = [int(p) for p in producto['plazos'].keys()]
+        plazo_cercano = min(plazos_disponibles, key=lambda x: abs(x - plazo_dias))
+        
+        if str(plazo_cercano) in producto['plazos']:
+            plazo_info = producto['plazos'][str(plazo_cercano)]
+            
+            # Solo calcular si permite inversión única
+            if plazo_info.get('permite_inversion_unica', True):
+                calc = calcular_inversion_simple(
+                    monto, 
+                    plazo_info['tasa_anual'], 
+                    plazo_cercano
+                )
+                
+                resultados.append({
+                    'producto': producto['nombre'],
+                    'producto_id': producto_id,
+                    'plazo_dias': plazo_cercano,
+                    'tasa_anual': plazo_info['tasa_anual'],
+                    'rendimiento': calc['rendimiento_total'],
+                    'monto_final': calc['monto_final']
+                })
+    
+    # Ordenar por rendimiento descendente
+    return sorted(resultados, key=lambda x: x['rendimiento'], reverse=True)

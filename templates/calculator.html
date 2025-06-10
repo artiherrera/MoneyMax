@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}
@@ -128,11 +129,11 @@
                     <div id="montoSuccess" class="success-message"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="plazoMesesSelect" class="form-label">Plazo de inversión</label>
+                <div class="form-group" id="plazoSelectGroup" style="display:none;">
+                    <label for="plazoMesesSelect" class="form-label">Plazo de la corrida</label>
                     <select id="plazoMesesSelect" name="plazo_meses" class="form-input"></select>
                     <div style="font-size:.8rem;color:#718096;margin-top:.25rem">
-                        Plazo de la corrida financiera
+                        ¿Por cuánto tiempo harás aportaciones mensuales?
                     </div>
                 </div>
 
@@ -220,6 +221,10 @@ const plazoDias  = {{ plazo_dias }};
 const tasaAnual  = {{ plazo_info.tasa_anual }};
 const MAX_MESES  = 360;
 
+// Información del producto y plazo
+const producto = {{ producto | tojson }};
+const plazoInfo = {{ plazo_info | tojson }};
+
 /* Utilidades DOM / dinero */
 const qs   = s => document.querySelector(s);
 const money= v => new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(v);
@@ -231,9 +236,33 @@ let lastCalculation = null;
 /* ──────────── INIT ──────────── */
 document.addEventListener('DOMContentLoaded', () => {
     console.log('💰 Calculadora MoneyMax iniciada');
+    initInvestmentTypes();
     generatePlazoOptions();
     initCalculator();
 });
+
+/* ──────────── CONFIGURAR TIPOS DE INVERSIÓN ──────────── */
+function initInvestmentTypes(){
+    // Verificar qué tipos de inversión están permitidos
+    const simpleRadio = qs('#simple');
+    const mensualRadio = qs('#mensual');
+    const radioGroup = qs('.radio-group');
+    
+    // Si el plazo no permite inversión mensual, ocultarla
+    if(!plazoInfo.permite_inversion_mensual || !producto.permite_corrida_mensual){
+        // Solo inversión única disponible
+        mensualRadio.parentElement.style.display = 'none';
+        simpleRadio.checked = true;
+        
+        // Si solo hay una opción, opcionalmente ocultar todo el grupo
+        // radioGroup.style.display = 'none';
+    }
+    
+    // Si es a la vista (plazo 0), configurar apropiadamente
+    if(plazoDias === 0){
+        qs('#plazoSelectGroup').style.display = simpleRadio.checked ? 'none' : 'block';
+    }
+}
 
 /* ──────────── OPCIONES DE PLAZO ──────────── */
 function generatePlazoOptions(){
@@ -292,9 +321,23 @@ function initCalculator(){
 
 /* Cambiar etiquetas según tipo */
 function updateFormLabels(tipo){
-    qs('#montoLabel').textContent = tipo === 'mensual' ? 'Monto mensual (MXN)' : 'Monto a invertir (MXN)';
-    qs('#montoInicialLabel').textContent = tipo === 'mensual' ? 'Total aportado' : 'Inversión inicial';
-    qs('#monto').placeholder = '1,000';
+    const plazoGroup = qs('#plazoSelectGroup');
+    const montoLabel = qs('#montoLabel');
+    const montoInicialLabel = qs('#montoInicialLabel');
+    
+    if(tipo === 'mensual'){
+        // Inversión mensual: mostrar selector de plazo
+        plazoGroup.style.display = 'block';
+        montoLabel.textContent = 'Monto mensual (MXN)';
+        montoInicialLabel.textContent = 'Total aportado';
+        qs('#monto').placeholder = '1,000';
+    } else {
+        // Inversión única: ocultar selector de plazo
+        plazoGroup.style.display = 'none';
+        montoLabel.textContent = 'Monto a invertir (MXN)';
+        montoInicialLabel.textContent = 'Inversión inicial';
+        qs('#monto').placeholder = '1,000';
+    }
 }
 
 /* ──────────── VALIDACIÓN ──────────── */
@@ -338,7 +381,16 @@ async function calculateInvestment(){
     
     const fd = new FormData(qs('#calculatorForm'));
     const monto = parseFloat(fd.get('monto'));
-    const meses = parseInt(fd.get('plazo_meses'));
+    const tipoInversion = fd.get('tipo_inversion');
+    
+    // Para inversión única, usar el plazo del producto
+    // Para inversión mensual, usar el plazo seleccionado
+    let meses;
+    if(tipoInversion === 'simple'){
+        meses = Math.ceil(plazoDias / 30.44) || 1;
+    } else {
+        meses = parseInt(fd.get('plazo_meses'));
+    }
     
     // Validar datos
     if(!monto || isNaN(monto) || monto < 100 || !meses){
@@ -347,7 +399,7 @@ async function calculateInvestment(){
     }
     
     // Verificar si ya calculamos esto
-    const calcKey = `${monto}-${meses}-${fd.get('tipo_inversion')}`;
+    const calcKey = `${monto}-${meses}-${tipoInversion}`;
     if(lastCalculation === calcKey){
         console.log('Cálculo idéntico, saltando');
         return;
@@ -358,7 +410,7 @@ async function calculateInvestment(){
         plazo_dias: plazoDias,
         plazo_meses_corrida: meses,
         monto: monto,
-        tipo_inversion: fd.get('tipo_inversion')
+        tipo_inversion: tipoInversion
     };
     
     console.log('📊 Calculando:', payload);
@@ -420,15 +472,23 @@ function displayResults(resp){
         qs('#tasaEfectiva').textContent = res.tasa_efectiva.toFixed(2) + ' %';
         qs('#montoInicial').textContent = money(res.monto_inicial);
         qs('#plazoMesesRes').textContent = res.plazo_meses;
+        
+        // OCULTAR gráfica y tabla para inversión única
+        qs('.chart-container').style.display = 'none';
+        qs('.table-container').style.display = 'none';
     } else {
         qs('#tasaEfectiva').textContent = res.rendimiento_porcentual.toFixed(2) + ' %';
         qs('#montoInicial').textContent = money(res.total_aportado);
         qs('#plazoMesesRes').textContent = res.num_meses;
+        
+        // MOSTRAR gráfica y tabla para inversión mensual
+        qs('.chart-container').style.display = 'block';
+        qs('.table-container').style.display = 'block';
+        
+        // Crear visualizaciones solo para inversión mensual
+        createChart(tabla, res.tipo_inversion);
+        createTable(tabla, res.tipo_inversion);
     }
-    
-    // Crear visualizaciones
-    createChart(tabla, res.tipo_inversion || 'simple');
-    createTable(tabla, res.tipo_inversion || 'simple');
 }
 
 /* ──────────── GRÁFICA ──────────── */
