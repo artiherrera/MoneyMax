@@ -9,14 +9,6 @@
       "badge": "TASA MÁS ALTA",
       "permite_corrida_mensual": true,
       "plazos": {
-        "0": {
-          "nombre": "A la vista",
-          "tasa_anual": 12.00,
-          "descripcion": "Disponibilidad inmediata de tu dinero",
-          "tipo_plazo": "vista",
-          "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
-        },
         "7": {
           "nombre": "7 días",
           "tasa_anual": 12.30,
@@ -39,7 +31,7 @@
           "descripcion": "Inversión a tres meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
+          "permite_inversion_mensual": false
         },
         "180": {
           "nombre": "180 días",
@@ -47,27 +39,19 @@
           "descripcion": "Inversión a seis meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
+          "permite_inversion_mensual": false
         }
       }
     },
     "stori": {
       "nombre": "Stori",
-      "logo": "",
+      "logo": "https://startupeable.com/directorio/wp-content/uploads/2021/03/Stori-Card-1024x1024.png",
       "descripcion": "Plataforma financiera digital con tasas competitivas y opciones flexibles de inversión",
-      "color_fondo": "#32CD32",
+      "color_fondo": "#2BA3A0",
       "tipo": "cuenta_inversion",
       "badge": "",
       "permite_corrida_mensual": true,
       "plazos": {
-        "0": {
-          "nombre": "Sin plazo",
-          "tasa_anual": 10.00,
-          "descripcion": "Inversión sin plazo fijo",
-          "tipo_plazo": "vista",
-          "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
-        },
         "30": {
           "nombre": "30 días",
           "tasa_anual": 11.00,
@@ -82,7 +66,7 @@
           "descripcion": "Inversión a tres meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
+          "permite_inversion_mensual": false
         },
         "180": {
           "nombre": "180 días",
@@ -90,7 +74,7 @@
           "descripcion": "Inversión a seis meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
+          "permite_inversion_mensual": false
         },
         "360": {
           "nombre": "360 días",
@@ -98,7 +82,7 @@
           "descripcion": "Inversión a un año",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
+          "permite_inversion_mensual": false
         }
       }
     },
@@ -111,14 +95,6 @@
       "badge": "",
       "permite_corrida_mensual": true,
       "plazos": {
-        "0": {
-          "nombre": "A la vista",
-          "tasa_anual": 13.00,
-          "descripcion": "Disponibilidad inmediata",
-          "tipo_plazo": "vista",
-          "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
-        },
         "30": {
           "nombre": "30 días",
           "tasa_anual": 13.25,
@@ -133,7 +109,7 @@
           "descripcion": "Inversión a tres meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
-          "permite_inversion_mensual": true
+          "permite_inversion_mensual": false
         }
       }
     },

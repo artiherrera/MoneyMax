@@ -4,8 +4,18 @@
 
 {% block head %}
 <style>
+/* ──────────── CSS VARIABLES ──────────── */
+:root {
+    --product-color: {{ producto.color_fondo }};
+    --product-color-light: {{ producto.color_fondo }}20;
+    --product-color-lighter: {{ producto.color_fondo }}10;
+    --product-color-dark: {{ producto.color_fondo }}dd;
+    --product-focus-shadow: {{ producto.color_fondo }}1a;
+}
+
+/* ──────────── ESTILOS ──────────── */
 .product-header {
-    background: linear-gradient(135deg, {{ producto.color_fondo }}, {{ producto.color_fondo }}dd);
+    background: linear-gradient(135deg, var(--product-color), var(--product-color-dark));
     color: white;
     padding: 3rem 0;
 }
@@ -24,12 +34,28 @@
 .plazo-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-    border-color: {{ producto.color_fondo }};
+    border-color: var(--product-color);
 }
 
 .plazo-card.destacado {
-    border-color: {{ producto.color_fondo }};
+    border-color: var(--product-color);
     background: linear-gradient(135deg, #f8fafc, #ffffff);
+    box-shadow: 0 4px 12px var(--product-focus-shadow);
+}
+
+.plazo-card.destacado::before {
+    content: '⭐ RECOMENDADO';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--product-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .plazo-nombre {
@@ -42,13 +68,25 @@
 .plazo-tasa {
     font-size: 2rem;
     font-weight: 800;
-    color: {{ producto.color_fondo }};
+    color: var(--product-color);
     margin-bottom: 0.5rem;
 }
 
 .plazo-descripcion {
     color: #718096;
     font-size: 0.9rem;
+}
+
+.plazo-badge {
+    display: inline-block;
+    background: var(--product-color-light);
+    color: var(--product-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    border: 1px solid var(--product-color);
 }
 
 .back-button {
@@ -90,7 +128,11 @@
 }
 
 .step.active {
-    background: {{ producto.color_fondo }};
+    background: var(--product-color);
+}
+
+.step.completed {
+    background: #48bb78;
 }
 
 .step.inactive {
@@ -103,10 +145,14 @@
     background: #cbd5e0;
 }
 
+.step-divider.completed {
+    background: #48bb78;
+}
+
 .section-icon {
     width: 24px;
     height: 24px;
-    background: {{ producto.color_fondo }};
+    background: var(--product-color);
     border-radius: 6px;
     display: inline-flex;
     align-items: center;
@@ -120,6 +166,31 @@
     height: 12px;
     background: white;
     border-radius: 2px;
+}
+
+.info-highlight {
+    color: var(--product-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .product-header {
+        padding: 2rem 0;
+    }
+    
+    .product-header > .container > div:first-of-type {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem !important;
+    }
+    
+    .plazo-card {
+        padding: 1.5rem;
+    }
+    
+    .steps-indicator {
+        margin-bottom: 1rem;
+    }
 }
 </style>
 {% endblock %}
@@ -153,6 +224,11 @@
             <div>
                 <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">{{ producto.nombre }}</h1>
                 <p style="font-size: 1.2rem; opacity: 0.9;">{{ producto.descripcion }}</p>
+                {% if producto.badge %}
+                    <span style="display: inline-block; background: rgba(255,255,255,0.3); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 0.5rem;">
+                        {{ producto.badge }}
+                    </span>
+                {% endif %}
             </div>
         </div>
         
@@ -165,9 +241,8 @@
             <div class="step inactive">3</div>
         </div>
         
-        <div style="text-align: right; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">
-            Paso 1 de 3<br>
-            <strong>Plazo</strong>
+        <div style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">
+            Paso 1 de 3 - <strong>Selecciona tu plazo</strong>
         </div>
     </div>
 </section>
@@ -178,15 +253,15 @@
         <div style="text-align: center; margin-bottom: 3rem;">
             <h2 style="font-size: 2rem; font-weight: 700; color: #2d3748; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
                 <span class="section-icon"></span>
-                Plazo
+                Elige tu plazo de inversión
             </h2>
             <p style="font-size: 1.1rem; color: #718096;">
-                Selecciona el plazo de tu inversión
+                Cada plazo tiene una tasa diferente. Puedes comparar todas las opciones disponibles.
             </p>
         </div>
         
         <!-- Grid de plazos -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
             {% for plazo_dias, plazo_info in producto.plazos.items() %}
             <div class="plazo-card {% if loop.first %}destacado{% endif %}" 
                  onclick="window.location.href='/calculator/{{ producto_id }}/{{ plazo_dias }}'">
@@ -194,37 +269,63 @@
                 <div class="plazo-nombre">{{ plazo_info.nombre }}</div>
                 <div class="plazo-tasa">{{ "%.2f"|format(plazo_info.tasa_anual) }}%</div>
                 <div class="plazo-descripcion">{{ plazo_info.descripcion }}</div>
+                
+                <!-- Badges para tipos de inversión disponibles -->
+                {% if plazo_info.permite_inversion_unica and plazo_info.permite_inversion_mensual %}
+                    <div class="plazo-badge">Única + Mensual</div>
+                {% elif plazo_info.permite_inversion_unica %}
+                    <div class="plazo-badge">Solo inversión única</div>
+                {% elif plazo_info.permite_inversion_mensual %}
+                    <div class="plazo-badge">Solo inversión mensual</div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
         
         <!-- Info adicional -->
-        <div style="background: #f7fafc; border-radius: 12px; padding: 2rem; margin-top: 3rem; max-width: 800px; margin-left: auto; margin-right: auto;">
-            <h3 style="font-size: 1.2rem; font-weight: 600; color: #2d3748; margin-bottom: 1rem;">
-                Detalles del plazo
+        <div style="background: #f7fafc; border-radius: 12px; padding: 2rem; margin-top: 3rem; max-width: 800px; margin-left: auto; margin-right: auto; border: 1px solid #e2e8f0;">
+            <h3 style="font-size: 1.2rem; font-weight: 600; color: #2d3748; margin-bottom: 1rem; display: flex; align-items: center;">
+                <span style="width: 20px; height: 20px; background: var(--product-color); border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; margin-right: 0.5rem;">
+                    <span style="width: 10px; height: 10px; background: white; border-radius: 2px;"></span>
+                </span>
+                Vista previa del plazo seleccionado
             </h3>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem;">
                 <div>
                     <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Plazo:</div>
-                    <div style="font-weight: 600; color: #2d3748;" id="selected-plazo">Selecciona un plazo</div>
+                    <div style="font-weight: 600; color: #2d3748; font-size: 1.1rem;" id="selected-plazo">Pasa el cursor sobre un plazo</div>
                 </div>
                 
                 <div>
                     <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Tasa anual:</div>
-                    <div style="font-weight: 600; color: {{ producto.color_fondo }};" id="selected-tasa">-</div>
+                    <div style="font-weight: 700; font-size: 1.1rem;" class="info-highlight" id="selected-tasa">-</div>
+                </div>
+                
+                <div>
+                    <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Tipos disponibles:</div>
+                    <div style="font-weight: 600; color: #2d3748; font-size: 1.1rem;" id="selected-tipos">-</div>
                 </div>
                 
                 <div>
                     <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Monto sugerido:</div>
-                    <div style="font-weight: 600; color: #2d3748;">$1,000.00</div>
-                </div>
-                
-                <div>
-                    <div style="color: #718096; font-size: 0.9rem; margin-bottom: 0.25rem;">Tipo de pago:</div>
-                    <div style="font-weight: 600; color: #2d3748;">Mensual</div>
+                    <div style="font-weight: 600; color: #2d3748; font-size: 1.1rem;">$1,000 MXN</div>
                 </div>
             </div>
+            
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid var(--product-color);">
+                <div style="font-size: 0.9rem; color: #4a5568; line-height: 1.5;">
+                    💡 <strong>Tip:</strong> Los plazos más cortos permiten reinvertir más frecuentemente, 
+                    mientras que los plazos largos pueden ofrecer tasas más estables.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Call to action -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <p style="color: #718096; font-size: 0.9rem;">
+                Haz clic en cualquier plazo para continuar con tu cálculo →
+            </p>
         </div>
     </div>
 </section>
@@ -236,22 +337,74 @@
 document.addEventListener('DOMContentLoaded', function() {
     const cards = document.querySelectorAll('.plazo-card');
     
-    cards.forEach(card => {
+    // Datos de plazos desde el servidor
+    const plazosData = {{ producto.plazos | tojson }};
+    
+    cards.forEach((card, index) => {
         card.addEventListener('mouseenter', function() {
             // Obtener información del plazo
             const nombre = this.querySelector('.plazo-nombre').textContent;
             const tasa = this.querySelector('.plazo-tasa').textContent;
             
+            // Obtener el plazo_dias del onclick
+            const href = this.getAttribute('onclick');
+            const plazoMatch = href.match(/\/calculator\/[^\/]+\/(\d+)/);
+            const plazoDias = plazoMatch ? plazoMatch[1] : null;
+            
+            // Obtener info de tipos disponibles
+            let tiposDisponibles = '-';
+            if (plazoDias && plazosData[plazoDias]) {
+                const plazoInfo = plazosData[plazoDias];
+                const unica = plazoInfo.permite_inversion_unica;
+                const mensual = plazoInfo.permite_inversion_mensual;
+                
+                if (unica && mensual) {
+                    tiposDisponibles = 'Única + Mensual';
+                } else if (unica) {
+                    tiposDisponibles = 'Solo única';
+                } else if (mensual) {
+                    tiposDisponibles = 'Solo mensual';
+                }
+            }
+            
             // Actualizar detalles
             document.getElementById('selected-plazo').textContent = nombre;
             document.getElementById('selected-tasa').textContent = tasa;
+            document.getElementById('selected-tipos').textContent = tiposDisponibles;
+            
+            // Efecto visual adicional
+            cards.forEach(c => c.style.opacity = c === this ? '1' : '0.7');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            // Restaurar opacidad
+            cards.forEach(c => c.style.opacity = '1');
         });
     });
     
-    // Resetear cuando el mouse sale del área
-    document.querySelector('.container').addEventListener('mouseleave', function() {
-        document.getElementById('selected-plazo').textContent = 'Selecciona un plazo';
+    // Resetear cuando el mouse sale del área de cards
+    const container = document.querySelector('section[style*="padding: 4rem 0"]');
+    container.addEventListener('mouseleave', function() {
+        document.getElementById('selected-plazo').textContent = 'Pasa el cursor sobre un plazo';
         document.getElementById('selected-tasa').textContent = '-';
+        document.getElementById('selected-tipos').textContent = '-';
+        
+        // Restaurar opacidad de todas las cards
+        cards.forEach(c => c.style.opacity = '1');
+    });
+    
+    // Mejorar la experiencia de click
+    cards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Efecto de loading antes de navegar
+            this.style.transform = 'scale(0.98)';
+            this.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                // El onclick original se ejecutará
+                eval(this.getAttribute('onclick'));
+            }, 100);
+        });
     });
 });
 </script>
