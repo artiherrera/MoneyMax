@@ -185,8 +185,8 @@
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
     animation: bounce 2s infinite;
+    z-index: 10; /* Asegurar que esté por encima de otros elementos */
 }
-
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
     40% { transform: translateY(-5px); }

@@ -6,7 +6,6 @@
       "descripcion": "Banco digital que ofrece tasas competitivas con una experiencia bancaria moderna",
       "color_fondo": "#8A2BE2",
       "tipo": "cuenta_inversion",
-      "badge": "TASA MÁS ALTA",
       "permite_corrida_mensual": true,
       "plazos": {
         "7": {
@@ -45,11 +44,10 @@
     },
     "stori": {
       "nombre": "Stori",
-      "logo": "https://startupeable.com/directorio/wp-content/uploads/2021/03/Stori-Card-1024x1024.png",
+      "logo": "",
       "descripcion": "Plataforma financiera digital con tasas competitivas y opciones flexibles de inversión",
-      "color_fondo": "#2BA3A0",
+      "color_fondo": "#32CD32",
       "tipo": "cuenta_inversion",
-      "badge": "",
       "permite_corrida_mensual": true,
       "plazos": {
         "30": {
@@ -92,7 +90,6 @@
       "descripcion": "Cuenta de inversión inteligente con tecnología financiera avanzada",
       "color_fondo": "#00A86B",
       "tipo": "cuenta_inversion",
-      "badge": "",
       "permite_corrida_mensual": true,
       "plazos": {
         "30": {
@@ -119,7 +116,6 @@
       "descripcion": "Certificados del Tesoro de la Federación - Inversión gubernamental segura",
       "color_fondo": "#1E90FF",
       "tipo": "gubernamental",
-      "badge": "GOBIERNO",
       "permite_corrida_mensual": false,
       "plazos": {
         "28": {

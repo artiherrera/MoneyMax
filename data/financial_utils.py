@@ -9,136 +9,21 @@ def obtener_producto_por_id(producto_id):
     return None
 
 def obtener_tasa_producto(producto, plazo_dias):
-    """Obtiene la tasa de un producto según el plazo (compatibilidad)"""
-    # En Flask manejamos las tasas directamente del JSON
-    return 0.0
+    """Obtiene la tasa anual de un producto para un plazo específico"""
+    try:
+        plazo_str = str(plazo_dias)
+        if plazo_str in producto['plazos']:
+            return producto['plazos'][plazo_str]['tasa_anual']
+        else:
+            raise ValueError(f"Plazo {plazo_dias} días no disponible para este producto")
+    except KeyError as e:
+        raise ValueError(f"Error al obtener tasa: {e}")
 
-def calcular_inversion_simple(monto_inicial, tasa_anual, plazo_dias):
-    """
-    Calcula inversión de monto único (una sola vez)
-    
-    Args:
-        monto_inicial (float): Monto a invertir
-        tasa_anual (float): Tasa anual en porcentaje
-        plazo_dias (int): Plazo en días
-    
-    Returns:
-        dict: Resultados del cálculo
-    """
-    # Convertir tasa anual a decimal
-    tasa_decimal = tasa_anual / 100
-    
-    # Calcular rendimiento
-    rendimiento_total = monto_inicial * tasa_decimal * (plazo_dias / 365)
-    monto_final = monto_inicial + rendimiento_total
-    
-    # Calcular tasa efectiva anual
-    if plazo_dias > 0:
-        tasa_efectiva = ((monto_final / monto_inicial) ** (365 / plazo_dias) - 1) * 100
-    else:
-        tasa_efectiva = tasa_anual
-    
-    return {
-        'monto_inicial': round(monto_inicial, 2),
-        'monto_final': round(monto_final, 2),
-        'rendimiento_total': round(rendimiento_total, 2),
-        'tasa_anual': tasa_anual,
-        'tasa_efectiva': round(tasa_efectiva, 2),
-        'plazo_dias': plazo_dias,
-        'plazo_meses': round(plazo_dias / 30.44, 1),
-        'tipo_inversion': 'simple'
-    }
-
-def calcular_inversion_mensual(monto_mensual, tasa_anual, num_meses):
-    """
-    Calcula inversión con aportaciones mensuales constantes
-    
-    Args:
-        monto_mensual (float): Monto mensual a invertir
-        tasa_anual (float): Tasa anual en porcentaje
-        num_meses (int): Número de meses
-    
-    Returns:
-        dict: Resultados del cálculo
-    """
-    tasa_mensual = (tasa_anual / 100) / 12
-    
-    # Fórmula de anualidad ordinaria
-    if tasa_mensual == 0:
-        monto_final = monto_mensual * num_meses
-    else:
-        monto_final = monto_mensual * (((1 + tasa_mensual) ** num_meses - 1) / tasa_mensual)
-    
-    total_aportado = monto_mensual * num_meses
-    rendimiento_total = monto_final - total_aportado
-    
-    return {
-        'monto_mensual': round(monto_mensual, 2),
-        'total_aportado': round(total_aportado, 2),
-        'monto_final': round(monto_final, 2),
-        'rendimiento_total': round(rendimiento_total, 2),
-        'tasa_anual': tasa_anual,
-        'num_meses': num_meses,
-        'rendimiento_porcentual': round((rendimiento_total / total_aportado) * 100, 2) if total_aportado > 0 else 0,
-        'tipo_inversion': 'mensual'
-    }
-
-def generar_tabla_crecimiento_simple(monto_inicial, tasa_anual, plazo_dias):
-    """
-    Para inversión simple NO genera tabla de crecimiento
-    Solo retorna un DataFrame vacío ya que no hay evolución mes a mes
-    """
-    # Para inversión única no tiene sentido mostrar evolución
-    # ya que es un solo monto que se invierte una vez
-    return pd.DataFrame()
-
-def generar_tabla_crecimiento_mensual(monto_mensual, tasa_anual, num_meses):
-    """Genera tabla de crecimiento mes a mes para inversión mensual"""
-    
-    datos = []
-    tasa_mensual = (tasa_anual / 100) / 12
-    monto_acumulado = 0
-    total_aportaciones = 0
-    
-    for mes in range(1, num_meses + 1):
-        # Agregar nueva aportación al inicio del mes
-        total_aportaciones += monto_mensual
-        monto_acumulado += monto_mensual
-        
-        # Calcular rendimientos sobre el saldo total acumulado al final del mes
-        rendimiento_mes = monto_acumulado * tasa_mensual
-        monto_acumulado += rendimiento_mes
-        
-        # Calcular totales
-        total_rendimientos = monto_acumulado - total_aportaciones
-        
-        datos.append({
-            'mes': mes,
-            'aportacion': monto_mensual,
-            'total_aportado': round(total_aportaciones, 2),
-            'rendimiento_mes': round(rendimiento_mes, 2),
-            'total_rendimientos': round(total_rendimientos, 2),
-            'monto_total': round(monto_acumulado, 2)
-        })
-    
-    return pd.DataFrame(datos)
-
-def validar_parametros_inversion(monto, plazo_dias, producto_id, tipo_inversion='simple'):
-    """
-    Valida que los parámetros de inversión sean correctos
-    
-    Args:
-        monto: Monto a invertir (o monto mensual)
-        plazo_dias: Plazo en días del producto
-        producto_id: ID del producto
-        tipo_inversion: 'simple' o 'mensual'
-    
-    Returns:
-        dict: {'valido': bool, 'errores': list}
-    """
+def validar_parametros_inversion(monto, plazo_dias, producto_id, tipo_inversion):
+    """Valida los parámetros de inversión"""
     errores = []
     
-    # Validar monto
+    # Validación de monto
     try:
         monto = float(monto)
     except (ValueError, TypeError):
@@ -149,101 +34,213 @@ def validar_parametros_inversion(monto, plazo_dias, producto_id, tipo_inversion=
     if tipo_inversion == 'simple':
         MONTO_MIN = 100
         MONTO_MAX = 50_000_000
-        tipo_monto = "El monto a invertir"
-    else:
+    else:  # mensual
         MONTO_MIN = 100
-        MONTO_MAX = 1_000_000  # Límite más bajo para mensualidades
-        tipo_monto = "El monto mensual"
+        MONTO_MAX = 1_000_000
     
-    if monto <= 0:
-        errores.append(f"{tipo_monto} debe ser mayor a cero")
-    elif monto < MONTO_MIN:
-        errores.append(f"{tipo_monto} mínimo es ${MONTO_MIN:,} MXN")
-    elif monto > MONTO_MAX:
-        errores.append(f"{tipo_monto} máximo es ${MONTO_MAX:,} MXN")
+    if not (MONTO_MIN <= monto <= MONTO_MAX):
+        errores.append(f"El monto debe estar entre ${MONTO_MIN:,} y ${MONTO_MAX:,} MXN")
     
-    # Validar plazo
-    if plazo_dias < 0:
-        errores.append("El plazo debe ser mayor o igual a cero días")
-    elif plazo_dias > 3650:  # 10 años
-        errores.append("El plazo máximo es 10 años")
-    
-    # Validar producto
-    if not producto_id:
-        errores.append("Debe especificar un producto")
-    
-    return {
-        'valido': len(errores) == 0,
-        'errores': errores
-    }
-
-def formatear_moneda(cantidad):
-    """Formatea una cantidad como moneda mexicana"""
-    if cantidad is None:
-        return "$0.00 MXN"
-    
+    # Validación de plazo
     try:
-        return f"${cantidad:,.2f} MXN"
+        plazo_dias = int(plazo_dias)
     except (ValueError, TypeError):
-        return "$0.00 MXN"
-
-def calcular_tasa_efectiva_anual(monto_inicial, monto_final, plazo_dias):
-    """Calcula la tasa efectiva anual"""
-    if monto_inicial <= 0 or plazo_dias <= 0:
-        return 0
+        errores.append("El plazo debe ser un número válido")
+        return {'valido': False, 'errores': errores}
     
-    try:
-        tasa_efectiva = ((monto_final / monto_inicial) ** (365 / plazo_dias) - 1) * 100
-        return round(tasa_efectiva, 2)
-    except (ZeroDivisionError, ValueError):
-        return 0
+    if not (1 <= plazo_dias <= 3650):
+        errores.append("El plazo debe estar entre 1 y 3650 días")
+    
+    return {'valido': len(errores) == 0, 'errores': errores}
 
-def convertir_dias_a_meses(dias):
-    """Convierte días a meses (promedio de 30.44 días por mes)"""
-    return round(dias / 30.44, 1)
-
-def convertir_meses_a_dias(meses):
-    """Convierte meses a días (promedio de 30.44 días por mes)"""
-    return round(meses * 30.44)
-
-def calcular_comparacion_productos(monto, plazo_dias, productos_dict):
+def calcular_inversion_simple(monto_inicial, tasa_anual, plazo_dias):
     """
-    Compara el rendimiento entre diferentes productos para un mismo monto y plazo
+    Calcula rendimiento para inversión única
     
     Args:
-        monto: Monto a invertir
-        plazo_dias: Plazo deseado
-        productos_dict: Diccionario con los productos
+        monto_inicial (float): Monto a invertir
+        tasa_anual (float): Tasa anual en porcentaje
+        plazo_dias (int): Días de inversión
     
     Returns:
-        list: Lista de resultados ordenados por rendimiento
+        dict: Resultados del cálculo
     """
-    resultados = []
-    
-    for producto_id, producto in productos_dict.items():
-        # Buscar el plazo más cercano
-        plazos_disponibles = [int(p) for p in producto['plazos'].keys()]
-        plazo_cercano = min(plazos_disponibles, key=lambda x: abs(x - plazo_dias))
+    try:
+        # Conversiones
+        monto_inicial = float(monto_inicial)
+        tasa_anual = float(tasa_anual)
+        plazo_dias = int(plazo_dias)
         
-        if str(plazo_cercano) in producto['plazos']:
-            plazo_info = producto['plazos'][str(plazo_cercano)]
+        # Cálculos
+        tasa_diaria = tasa_anual / 36500  # Dividir entre 365 días y convertir de % a decimal
+        rendimiento = monto_inicial * tasa_diaria * plazo_dias
+        monto_final = monto_inicial + rendimiento
+        
+        # Tasa efectiva anual
+        if plazo_dias > 0:
+            factor_crecimiento = monto_final / monto_inicial
+            periodos_anuales = 365 / plazo_dias
+            tasa_efectiva = (factor_crecimiento ** periodos_anuales - 1) * 100
+        else:
+            tasa_efectiva = 0
+        
+        # Convertir días a meses para mostrar
+        plazo_meses = round(plazo_dias / 30.44, 1)  # 30.44 es el promedio de días por mes
+        
+        return {
+            'tipo_inversion': 'simple',
+            'monto_inicial': round(monto_inicial, 2),
+            'rendimiento': round(rendimiento, 2),
+            'monto_final': round(monto_final, 2),
+            'tasa_efectiva': round(tasa_efectiva, 2),
+            'plazo_meses': plazo_meses,
+            'tasa_anual': tasa_anual,
+            'plazo_dias': plazo_dias
+        }
+        
+    except Exception as e:
+        raise ValueError(f"Error en cálculo de inversión simple: {str(e)}")
+
+def calcular_inversion_mensual(monto_mensual, tasa_anual, plazo_meses):
+    """
+    Calcula rendimiento para inversión mensual (anualidad ordinaria)
+    
+    Args:
+        monto_mensual (float): Monto mensual a invertir
+        tasa_anual (float): Tasa anual en porcentaje
+        plazo_meses (int): Número de meses
+    
+    Returns:
+        dict: Resultados del cálculo
+    """
+    try:
+        # Conversiones
+        monto_mensual = float(monto_mensual)
+        tasa_anual = float(tasa_anual)
+        plazo_meses = int(plazo_meses)
+        
+        # Tasa mensual
+        tasa_mensual = (tasa_anual / 100) / 12
+        
+        # Fórmula de anualidad ordinaria: FV = PMT * [((1 + r)^n - 1) / r]
+        if tasa_mensual > 0:
+            factor = ((1 + tasa_mensual) ** plazo_meses - 1) / tasa_mensual
+            monto_final = monto_mensual * factor
+        else:
+            monto_final = monto_mensual * plazo_meses
+        
+        total_aportado = monto_mensual * plazo_meses
+        rendimiento_total = monto_final - total_aportado
+        
+        # Tasa efectiva anual
+        if plazo_meses > 0 and total_aportado > 0:
+            # Aproximación de tasa efectiva para anualidades
+            periodos_anuales = 12 / plazo_meses
+            if periodos_anuales > 0:
+                factor_crecimiento = monto_final / total_aportado
+                tasa_efectiva = (factor_crecimiento ** periodos_anuales - 1) * 100
+            else:
+                tasa_efectiva = (rendimiento_total / total_aportado) * 100
+        else:
+            tasa_efectiva = 0
+        
+        return {
+            'tipo_inversion': 'mensual',
+            'monto_mensual': round(monto_mensual, 2),
+            'total_aportado': round(total_aportado, 2),
+            'rendimiento_total': round(rendimiento_total, 2),
+            'monto_final': round(monto_final, 2),
+            'tasa_efectiva': round(tasa_efectiva, 2),
+            'plazo_meses': plazo_meses,
+            'tasa_anual': tasa_anual
+        }
+        
+    except Exception as e:
+        raise ValueError(f"Error en cálculo de inversión mensual: {str(e)}")
+
+def generar_tabla_crecimiento_simple(monto_inicial, tasa_anual, plazo_dias):
+    """
+    Para inversión simple, retorna DataFrame vacío ya que no hay evolución mensual
+    """
+    return pd.DataFrame()
+
+def generar_tabla_crecimiento_mensual(monto_mensual, tasa_anual, plazo_meses):
+    """
+    Genera tabla de evolución para inversión mensual
+    
+    Args:
+        monto_mensual (float): Monto mensual
+        tasa_anual (float): Tasa anual en porcentaje
+        plazo_meses (int): Plazo en meses
+    
+    Returns:
+        pd.DataFrame: Tabla con evolución mes a mes
+    """
+    try:
+        monto_mensual = float(monto_mensual)
+        tasa_anual = float(tasa_anual)
+        plazo_meses = int(plazo_meses)
+        
+        tasa_mensual = (tasa_anual / 100) / 12
+        
+        datos = []
+        monto_acumulado = 0
+        
+        for mes in range(1, plazo_meses + 1):
+            # Agregar aportación del mes
+            monto_acumulado += monto_mensual
             
-            # Solo calcular si permite inversión única
-            if plazo_info.get('permite_inversion_unica', True):
-                calc = calcular_inversion_simple(
+            # Calcular rendimiento sobre el saldo acumulado
+            rendimiento_mes = monto_acumulado * tasa_mensual
+            monto_acumulado += rendimiento_mes
+            
+            # Totales hasta la fecha
+            total_aportado = monto_mensual * mes
+            rendimiento_acumulado = monto_acumulado - total_aportado
+            
+            datos.append({
+                'mes': mes,
+                'aportacion': monto_mensual,
+                'total_aportado': round(total_aportado, 2),
+                'rendimiento_mes': round(rendimiento_mes, 2),
+                'rendimiento_acumulado': round(rendimiento_acumulado, 2),
+                'monto_total': round(monto_acumulado, 2)
+            })
+        
+        return pd.DataFrame(datos)
+        
+    except Exception as e:
+        print(f"Error generando tabla mensual: {e}")
+        return pd.DataFrame()
+
+def calcular_comparacion_productos(monto, productos):
+    """
+    Calcula rendimientos para comparar productos
+    Útil para páginas de comparación
+    """
+    comparaciones = []
+    
+    for producto_id, producto in productos.items():
+        for plazo_dias, plazo_info in producto['plazos'].items():
+            try:
+                resultado = calcular_inversion_simple(
                     monto, 
                     plazo_info['tasa_anual'], 
-                    plazo_cercano
+                    int(plazo_dias)
                 )
                 
-                resultados.append({
-                    'producto': producto['nombre'],
+                comparaciones.append({
                     'producto_id': producto_id,
-                    'plazo_dias': plazo_cercano,
+                    'producto_nombre': producto['nombre'],
+                    'plazo_dias': int(plazo_dias),
+                    'plazo_nombre': plazo_info['nombre'],
                     'tasa_anual': plazo_info['tasa_anual'],
-                    'rendimiento': calc['rendimiento_total'],
-                    'monto_final': calc['monto_final']
+                    'rendimiento': resultado['rendimiento'],
+                    'monto_final': resultado['monto_final'],
+                    'tasa_efectiva': resultado['tasa_efectiva']
                 })
+            except Exception as e:
+                print(f"Error calculando {producto_id} - {plazo_dias}: {e}")
+                continue
     
-    # Ordenar por rendimiento descendente
-    return sorted(resultados, key=lambda x: x['rendimiento'], reverse=True)
+    return sorted(comparaciones, key=lambda x: x['rendimiento'], reverse=True)

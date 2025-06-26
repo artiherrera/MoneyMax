@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}
@@ -38,7 +37,6 @@
 .error-message{background:#fed7d7;color:#c53030;padding:.75rem 1rem;border-radius:6px;font-size:.9rem;margin-top:.5rem;display:none}
 .success-message{background:#c6f6d5;color:#276749;padding:.75rem 1rem;border-radius:6px;font-size:.9rem;margin-top:.5rem;display:none}
 .loading{display:none;text-align:center;color:#718096;font-style:italic;margin-top:1rem}
-.auto-calc-indicator{font-size:.8rem;color:#48bb78;margin-top:.5rem;text-align:center;display:none}
 @media (max-width:768px){.calculator-container{grid-template-columns:1fr;gap:2rem;padding:2rem 1rem}.radio-group{flex-direction:column}.metrics-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 {% endblock %}
@@ -148,12 +146,8 @@
                 </div>
 
                 <button type="button" class="calculate-button" id="calculateBtn" onclick="forceCalculate()">
-                    Calcular rendimiento
+                    💰 Calcular mi inversión
                 </button>
-                
-                <div class="auto-calc-indicator" id="autoCalcIndicator">
-                    ✓ Calculando automáticamente...
-                </div>
             </form>
 
             <div id="loading" class="loading">Calculando rendimientos...</div>
@@ -165,34 +159,36 @@
                 Resultados
             </h2>
 
-            <div id="results" style="display:none">
+            <div id="resultsSection" style="display:none">
                 <div class="result-card">
-                    <div class="result-amount" id="montoFinal">$0.00</div>
+                    <div class="result-amount" id="montoFinalValue">$0.00</div>
                     <div class="result-label">Monto final</div>
                 </div>
 
                 <div class="metrics-grid">
                     <div class="metric-item">
-                        <div class="metric-value" id="rendimientoTotal">$0.00</div>
+                        <div class="metric-value" id="rendimientoValue">$0.00</div>
                         <div class="metric-label">Rendimiento</div>
                     </div>
                     <div class="metric-item">
-                        <div class="metric-value" id="tasaEfectiva">0.00 %</div>
+                        <div class="metric-value" id="tasaEfectivaValue">0.00 %</div>
                         <div class="metric-label">Tasa efectiva</div>
                     </div>
                     <div class="metric-item">
-                        <div class="metric-value" id="montoInicial">$0.00</div>
+                        <div class="metric-value" id="montoInicialValue">$0.00</div>
                         <div class="metric-label" id="montoInicialLabel">Inversión inicial</div>
                     </div>
                     <div class="metric-item">
-                        <div class="metric-value" id="plazoMesesRes">0</div>
+                        <div class="metric-value" id="plazoMesesValue">0</div>
                         <div class="metric-label">Meses</div>
                     </div>
                 </div>
 
-                <div class="chart-container"><div id="chart"></div></div>
+                <div class="chart-container" id="chartContainer">
+                    <div id="chart"></div>
+                </div>
 
-                <div class="table-container">
+                <div class="table-container" id="tableContainer">
                     <table class="data-table" id="dataTable">
                         <thead><tr id="tableHeaders"></tr></thead>
                         <tbody id="tableBody"></tbody>
@@ -205,7 +201,7 @@
                             display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;opacity:.5">
                     <div style="width:24px;height:24px;background:#cbd5e0;border-radius:4px"></div>
                 </div>
-                <p>Ingresa un monto para ver los resultados</p>
+                <p>Haz clic en "Calcular mi inversión" para ver los resultados</p>
             </div>
         </div>
     </div>
@@ -243,24 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ──────────── CONFIGURAR TIPOS DE INVERSIÓN ──────────── */
 function initInvestmentTypes(){
-    // Verificar qué tipos de inversión están permitidos
     const simpleRadio = qs('#simple');
     const mensualRadio = qs('#mensual');
-    const radioGroup = qs('.radio-group');
     
-    // Si el plazo no permite inversión mensual, ocultarla
     if(!plazoInfo.permite_inversion_mensual || !producto.permite_corrida_mensual){
-        // Solo inversión única disponible
         mensualRadio.parentElement.style.display = 'none';
         simpleRadio.checked = true;
-        
-        // Si solo hay una opción, opcionalmente ocultar todo el grupo
-        // radioGroup.style.display = 'none';
-    }
-    
-    // Si es a la vista (plazo 0), configurar apropiadamente
-    if(plazoDias === 0){
-        qs('#plazoSelectGroup').style.display = simpleRadio.checked ? 'none' : 'block';
     }
 }
 
@@ -270,18 +254,15 @@ function generatePlazoOptions(){
     sel.innerHTML = '';
     const opts = [];
     
-    // Generar opciones de meses
     for(let m = 1; m <= MAX_MESES; m++){
         if(m <= 24) opts.push(m);
         else if(m <= 60 && m % 6 === 0) opts.push(m);
         else if(m % 12 === 0) opts.push(m);
     }
     
-    // Agregar el plazo del instrumento si no está
     const instr = Math.ceil(plazoDias / 30.44);
     if(!opts.includes(instr)) opts.push(instr);
     
-    // Ordenar y crear opciones
     opts.sort((a, b) => a - b).forEach(m => {
         const o = document.createElement('option');
         o.value = m;
@@ -296,27 +277,22 @@ function generatePlazoOptions(){
 
 /* ──────────── LISTENERS ──────────── */
 function initCalculator(){
-    // Listeners para tipo de inversión
     document.querySelectorAll('input[name="tipo_inversion"]').forEach(input => {
         input.addEventListener('change', e => {
             updateFormLabels(e.target.value);
-            calculateInvestment();
         });
     });
     
-    // Para el monto: calcular al escribir y al salir
     const montoInput = qs('#monto');
-    montoInput.addEventListener('input', function() {
-        validateMonto();
-        debounce(calculateInvestment, 1000)();
+    montoInput.addEventListener('input', validateMonto);
+    
+    // Permitir solo números y punto decimal
+    montoInput.addEventListener('keypress', function(e){
+        const char = String.fromCharCode(e.which);
+        if(!/[0-9.]/.test(char)){
+            e.preventDefault();
+        }
     });
-    montoInput.addEventListener('blur', calculateInvestment);
-    
-    // Para el select de plazo
-    qs('#plazoMesesSelect').addEventListener('change', calculateInvestment);
-    
-    // Calcular inicial
-    setTimeout(calculateInvestment, 100);
 }
 
 /* Cambiar etiquetas según tipo */
@@ -326,13 +302,11 @@ function updateFormLabels(tipo){
     const montoInicialLabel = qs('#montoInicialLabel');
     
     if(tipo === 'mensual'){
-        // Inversión mensual: mostrar selector de plazo
         plazoGroup.style.display = 'block';
         montoLabel.textContent = 'Monto mensual (MXN)';
         montoInicialLabel.textContent = 'Total aportado';
         qs('#monto').placeholder = '1,000';
     } else {
-        // Inversión única: ocultar selector de plazo
         plazoGroup.style.display = 'none';
         montoLabel.textContent = 'Monto a invertir (MXN)';
         montoInicialLabel.textContent = 'Inversión inicial';
@@ -347,7 +321,6 @@ function validateMonto(){
     const errorDiv = qs('#montoError');
     const successDiv = qs('#montoSuccess');
     
-    // Limpiar mensajes previos
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
     
@@ -367,7 +340,6 @@ function validateMonto(){
         return false;
     }
     
-    // Monto válido
     successDiv.textContent = '✓ Monto válido';
     successDiv.style.display = 'block';
     setTimeout(() => successDiv.style.display = 'none', 3000);
@@ -376,15 +348,12 @@ function validateMonto(){
 
 /* ──────────── LLAMADA API ──────────── */
 async function calculateInvestment(){
-    // Evitar cálculos simultáneos
     if(isCalculating) return;
     
     const fd = new FormData(qs('#calculatorForm'));
     const monto = parseFloat(fd.get('monto'));
     const tipoInversion = fd.get('tipo_inversion');
     
-    // Para inversión única, usar el plazo del producto
-    // Para inversión mensual, usar el plazo seleccionado
     let meses;
     if(tipoInversion === 'simple'){
         meses = Math.ceil(plazoDias / 30.44) || 1;
@@ -392,32 +361,28 @@ async function calculateInvestment(){
         meses = parseInt(fd.get('plazo_meses'));
     }
     
-    // Validar datos
-    if(!monto || isNaN(monto) || monto < 100 || !meses){
-        console.log('Datos incompletos, saltando cálculo');
+    if(!monto || isNaN(monto) || monto < 100){
+        showError('Por favor ingresa un monto válido');
         return;
     }
     
-    // Verificar si ya calculamos esto
-    const calcKey = `${monto}-${meses}-${tipoInversion}`;
-    if(lastCalculation === calcKey){
-        console.log('Cálculo idéntico, saltando');
+    if(tipoInversion === 'mensual' && (!meses || meses < 1)){
+        showError('Por favor selecciona un plazo válido para la corrida');
         return;
     }
     
     const payload = {
+        monto: monto,
         producto_id: productoId,
         plazo_dias: plazoDias,
-        plazo_meses_corrida: meses,
-        monto: monto,
-        tipo_inversion: tipoInversion
+        tipo_inversion: tipoInversion,
+        plazo_meses: meses
     };
     
-    console.log('📊 Calculando:', payload);
+    console.log('📊 Enviando datos:', payload);
     
     isCalculating = true;
     showLoading(true);
-    showAutoCalcIndicator();
     clearErrors();
     
     try {
@@ -427,68 +392,73 @@ async function calculateInvestment(){
             body: JSON.stringify(payload)
         });
         
+        const data = await response.json();
+        console.log('📊 Respuesta del API:', data);
+        
         if(!response.ok){
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Error ${response.status}`);
+            throw new Error(data.error || `Error ${response.status}`);
         }
         
-        const data = await response.json();
+        if(!data.monto_final){
+            throw new Error('Respuesta del servidor incompleta');
+        }
+        
         displayResults(data);
-        lastCalculation = calcKey;
         
     } catch(error) {
         console.error('Error en cálculo:', error);
         showError(error.message);
-        qs('#results').style.display = 'none';
+        qs('#resultsSection').style.display = 'none';
         qs('#noResults').style.display = 'block';
     } finally {
         isCalculating = false;
         showLoading(false);
-        hideAutoCalcIndicator();
     }
 }
 
-/* Función para forzar cálculo desde el botón */
+/* Función para el botón */
 function forceCalculate(){
-    lastCalculation = null; // Resetear caché
     calculateInvestment();
 }
 
 /* ──────────── RESULTADOS ──────────── */
-function displayResults(resp){
-    const res = resp.resultado;
-    const tabla = resp.tabla_crecimiento;
+function displayResults(data){
+    console.log('📈 Mostrando resultados:', data);
     
-    console.log('📈 Mostrando resultados:', res);
-    
-    qs('#results').style.display = 'block';
+    qs('#resultsSection').style.display = 'block';
     qs('#noResults').style.display = 'none';
     
-    // Actualizar valores
-    qs('#montoFinal').textContent = money(res.monto_final);
-    qs('#rendimientoTotal').textContent = money(res.rendimiento_total);
+    qs('#montoFinalValue').textContent = money(data.monto_final);
     
-    if(res.tipo_inversion === 'simple'){
-        qs('#tasaEfectiva').textContent = res.tasa_efectiva.toFixed(2) + ' %';
-        qs('#montoInicial').textContent = money(res.monto_inicial);
-        qs('#plazoMesesRes').textContent = res.plazo_meses;
+    if(data.tipo_inversion === 'simple'){
+        qs('#rendimientoValue').textContent = money(data.rendimiento);
+        qs('#tasaEfectivaValue').textContent = data.tasa_efectiva.toFixed(2) + ' %';
+        qs('#montoInicialValue').textContent = money(data.monto_inicial);
+        qs('#plazoMesesValue').textContent = data.plazo_meses;
+        hideChartAndTable();
+    } else if(data.tipo_inversion === 'mensual'){
+        qs('#rendimientoValue').textContent = money(data.rendimiento_total);
+        qs('#tasaEfectivaValue').textContent = data.tasa_efectiva.toFixed(2) + ' %';
+        qs('#montoInicialValue').textContent = money(data.total_aportado);
+        qs('#plazoMesesValue').textContent = data.plazo_meses;
+        showChartAndTable();
         
-        // OCULTAR gráfica y tabla para inversión única
-        qs('.chart-container').style.display = 'none';
-        qs('.table-container').style.display = 'none';
-    } else {
-        qs('#tasaEfectiva').textContent = res.rendimiento_porcentual.toFixed(2) + ' %';
-        qs('#montoInicial').textContent = money(res.total_aportado);
-        qs('#plazoMesesRes').textContent = res.num_meses;
-        
-        // MOSTRAR gráfica y tabla para inversión mensual
-        qs('.chart-container').style.display = 'block';
-        qs('.table-container').style.display = 'block';
-        
-        // Crear visualizaciones solo para inversión mensual
-        createChart(tabla, res.tipo_inversion);
-        createTable(tabla, res.tipo_inversion);
+        if(data.tabla_crecimiento && data.tabla_crecimiento.length > 0){
+            createChart(data.tabla_crecimiento, data.tipo_inversion);
+            createTable(data.tabla_crecimiento, data.tipo_inversion);
+        }
     }
+}
+
+/* ──────────── SHOW/HIDE CHART & TABLE ──────────── */
+function hideChartAndTable(){
+    qs('#chartContainer').style.display = 'none';
+    qs('#tableContainer').style.display = 'none';
+}
+
+function showChartAndTable(){
+    qs('#chartContainer').style.display = 'block';
+    qs('#tableContainer').style.display = 'block';
 }
 
 /* ──────────── GRÁFICA ──────────── */
@@ -498,25 +468,7 @@ function createChart(data, tipo){
     const x = data.map(r => `Mes ${r.mes}`);
     const traces = [];
     
-    if(tipo === 'simple'){
-        traces.push({
-            x, y: data.map(r => r.monto_inicial || 0),
-            type: 'scatter', mode: 'lines', name: 'Capital inicial',
-            line: {color: '#e2e8f0', width: 2}, fill: 'tozeroy',
-            fillcolor: 'rgba(226,232,240,.5)', stackgroup: 'one'
-        });
-        traces.push({
-            x, y: data.map(r => r.rendimiento || 0),
-            type: 'scatter', mode: 'lines', name: 'Intereses generados',
-            line: {color: '#48bb78', width: 2}, fill: 'tonexty',
-            fillcolor: 'rgba(72,187,120,.5)', stackgroup: 'one'
-        });
-        traces.push({
-            x, y: data.map(r => r.monto_total),
-            type: 'scatter', mode: 'lines+markers', name: 'Monto total',
-            line: {color: '{{ producto.color_fondo }}', width: 3}, marker: {size: 6}
-        });
-    } else {
+    if(tipo === 'mensual'){
         traces.push({
             x, y: data.map(r => r.total_aportado || 0),
             type: 'scatter', mode: 'lines', name: 'Capital aportado',
@@ -524,7 +476,7 @@ function createChart(data, tipo){
             fillcolor: 'rgba(226,232,240,.5)', stackgroup: 'one'
         });
         traces.push({
-            x, y: data.map(r => r.total_rendimientos || 0),
+            x, y: data.map(r => r.rendimiento_acumulado || 0),
             type: 'scatter', mode: 'lines', name: 'Intereses generados',
             line: {color: '#48bb78', width: 2}, fill: 'tonexty',
             fillcolor: 'rgba(72,187,120,.5)', stackgroup: 'one'
@@ -563,20 +515,7 @@ function createTable(data, tipo){
     
     if(!data || data.length === 0) return;
     
-    if(tipo === 'simple'){
-        head.innerHTML = '<th>Mes</th><th>Días</th><th>Inversión inicial</th><th>Rendimiento</th><th>Monto total</th>';
-        data.forEach(r => {
-            body.insertAdjacentHTML('beforeend', `
-                <tr>
-                    <td>${r.mes}</td>
-                    <td>${r.dias}</td>
-                    <td>${money(r.monto_inicial)}</td>
-                    <td>${money(r.rendimiento)}</td>
-                    <td><strong>${money(r.monto_total)}</strong></td>
-                </tr>
-            `);
-        });
-    } else {
+    if(tipo === 'mensual'){
         head.innerHTML = '<th>Mes</th><th>Aportación</th><th>Total aportado</th><th>Rendimiento mes</th><th>Monto total</th>';
         data.forEach(r => {
             body.insertAdjacentHTML('beforeend', `
@@ -598,16 +537,6 @@ function showLoading(show){
     qs('#calculateBtn').disabled = show;
 }
 
-function showAutoCalcIndicator(){
-    const indicator = qs('#autoCalcIndicator');
-    indicator.style.display = 'block';
-    setTimeout(() => indicator.style.display = 'none', 2000);
-}
-
-function hideAutoCalcIndicator(){
-    qs('#autoCalcIndicator').style.display = 'none';
-}
-
 function clearErrors(){
     qs('#montoError').style.display = 'none';
 }
@@ -617,27 +546,5 @@ function showError(msg){
     errorDiv.textContent = msg;
     errorDiv.style.display = 'block';
 }
-
-function debounce(func, wait){
-    let timeout;
-    return function executedFunction(...args){
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-/* ──────────── FORMATEO DE INPUT ──────────── */
-// Mejorar la experiencia del input numérico
-qs('#monto').addEventListener('keypress', function(e){
-    // Permitir solo números y punto decimal
-    const char = String.fromCharCode(e.which);
-    if(!/[0-9.]/.test(char)){
-        e.preventDefault();
-    }
-});
 </script>
 {% endblock %}
