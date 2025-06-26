@@ -45,7 +45,7 @@
     },
     "stori": {
       "nombre": "Stori",
-      "logo": "",
+      "logo": "https://scontent.fmex11-2.fna.fbcdn.net/v/t39.30808-6/466421751_968792945279724_1570076653431289920_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=uq_LWKJlRgoQ7kNvwHDRFno&_nc_oc=AdlsJZda7FNwa2qFWyPk7B7RjqSkdS_PiVQhEAvuYa06vw78keezjf0IUhHC1oHScqGBjVR1zIGE3u5m8wJdMA3w&_nc_zt=23&_nc_ht=scontent.fmex11-2.fna&_nc_gid=URYBE0IIuFasYdaPahAXzg&oh=00_AfOoceGrgjWdPERcunahY0z3QFTwvbK4iZ4bGfpMk6tb8w&oe=6862C8F0",
       "descripcion": "Plataforma financiera digital con tasas competitivas y opciones flexibles de inversión",
       "color_fondo": "#32CD32",
       "tipo": "cuenta_inversion",
@@ -139,7 +139,7 @@
     },
     "cetes": {
       "nombre": "CETES",
-      "logo": "",
+      "logo": "https://scontent.fmex11-2.fna.fbcdn.net/v/t39.30808-6/307007209_456664236506010_90986013271516841_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=SsQMWyAH31oQ7kNvwHhNVnm&_nc_oc=Adn_4XLRf2W9LXplL8sX6EliSeINBAaDuh5pMOAn5FVFZ3VYBQmCn96xlQ_eXzkDe48ets8myhDIGGTFw0Hyn9Nd&_nc_zt=23&_nc_ht=scontent.fmex11-2.fna&_nc_gid=Jg7sX4-m4FAnLe-iAFr4Vw&oh=00_AfMnk2YAnqyLjJJVnye-doUMG8V_qSkQ6Dstak2_ewDrVQ&oe=6862ACC0",
       "descripcion": "Certificados del Tesoro de la Federación - Inversión gubernamental segura",
       "color_fondo": "#1E90FF",
       "tipo": "gubernamental",
