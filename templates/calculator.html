@@ -1,5 +1,21 @@
 {% extends "base.html" %}
 
+{% block description %}
+Calcula tu rendimiento invirtiendo en {{ producto.nombre }} a {{ plazo_info.nombre }}. Tasa del {{ plazo_info.tasa_anual }}% anual. Simulador gratuito con gráficas.
+{% endblock %}
+
+{% block keywords %}
+{{ producto.nombre }}, {{ plazo_info.nombre }}, {{ plazo_info.tasa_anual }}% anual, calculadora inversión, rendimiento
+{% endblock %}
+
+{% block og_title %}
+Calculadora {{ producto.nombre }} - {{ plazo_info.nombre }} | {{ plazo_info.tasa_anual }}% anual
+{% endblock %}
+
+{% block og_description %}
+Simula tu inversión en {{ producto.nombre }} a {{ plazo_info.nombre }} con tasa del {{ plazo_info.tasa_anual }}%. Calcula rendimientos y ve la evolución de tu dinero.
+{% endblock %}
+
 {% block title %}
     Calculadora {{ producto.nombre }} - {{ plazo_info.nombre }} | MoneyMax
 {% endblock %}

@@ -5,11 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MoneyMax - Calculadora de Inversiones{% endblock %}</title>
     
-    <!-- CSS Personalizado -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block description %}Calcula rendimientos de inversiones en CETES, Nu, Stori y Klar. Simulador gratuito de inversiones mexicanas con tasas actualizadas.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}calculadora inversiones, CETES, Nu banco, Stori, Klar, rendimientos, inversión México, tasas{% endblock %}">
+    <meta name="author" content="MoneyMax">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph para Facebook, WhatsApp, LinkedIn -->
+    <meta property="og:title" content="{% block og_title %}MoneyMax - Calculadora de Inversiones{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Calcula rendimientos de inversiones en CETES, Nu, Stori y Klar. Simulador gratuito de inversiones mexicanas.{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:site_name" content="MoneyMax">
+    <meta property="og:locale" content="es_MX">
+    
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}MoneyMax{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Calculadora de inversiones mexicanas{% endblock %}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.url }}">
     
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234299e1'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/></svg>">
+    
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
     {% block head %}{% endblock %}
 </head>
@@ -23,7 +45,6 @@
                 </div>
                 <span class="logo-text">MoneyMax</span>
             </a>
-            
             <div class="nav-links" style="display: flex; gap: 2rem;">
                 <a href="/" style="color: #718096; text-decoration: none; font-weight: 500;">Inicio</a>
                 <a href="/api/productos" style="color: #718096; text-decoration: none; font-weight: 500;">API</a>

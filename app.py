@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, make_response
 import json
 import os
 from data.financial_utils import (
@@ -205,6 +205,30 @@ def health():
         'productos_cargados': len(productos) > 0,
         'productos_count': len(productos)
     })
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Servir robots.txt"""
+    return send_from_directory('.', 'robots.txt', mimetype='text/plain')
+
+@app.after_request
+def after_request(response):
+    # Headers de seguridad y SEO
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['X-Robots-Tag'] = 'index, follow'
+    
+    # Cache para archivos estáticos
+    if request.endpoint == 'static':
+        response.headers['Cache-Control'] = 'public, max-age=86400'  # 1 día
+    
+    return response
+
+@app.route('/sitemap.xml')
+def sitemap():
+    """Generar sitemap.xml dinámico"""
+    # ... código para generar URLs automáticamente
 
 if __name__ == '__main__':
     # Configuración para desarrollo
