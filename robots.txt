@@ -1,10 +1,8 @@
 User-agent: *
 Allow: /
 Allow: /static/
-Allow: /api/
-
-# Evitar crawling de endpoints específicos
 Disallow: /api/calcular
+Crawl-delay: 1
 
 # Permitir motores de búsqueda principales
 User-agent: Googlebot
@@ -13,8 +11,5 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-# Sitemap (crear cuando tengas uno)
-# Sitemap: https://tu-dominio.com/sitemap.xml
-
-# Crawl-delay para evitar sobrecarga
-Crawl-delay: 1
+# Sitemap
+Sitemap: https://moneymax.mx/sitemap.xml

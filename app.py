@@ -228,7 +228,47 @@ def after_request(response):
 @app.route('/sitemap.xml')
 def sitemap():
     """Generar sitemap.xml dinámico"""
-    # ... código para generar URLs automáticamente
+    from datetime import datetime
+    
+    # Cargar productos para generar URLs
+    with open('data/productos.json', 'r', encoding='utf-8') as f:
+        productos = json.load(f)['productos']
+    
+    # Generar URLs dinámicamente
+    urls = []
+    
+    # Página principal
+    urls.append({
+        'loc': url_for('index', _external=True),
+        'priority': '1.0',
+        'changefreq': 'weekly'
+    })
+    
+    # Páginas de productos y plazos
+    for producto_id, producto in productos.items():
+        for plazo_dias, plazo_info in producto['plazos'].items():
+            urls.append({
+                'loc': url_for('calculator', producto_id=producto_id, plazo=plazo_dias, _external=True),
+                'priority': '0.8',
+                'changefreq': 'weekly'
+            })
+    
+    # Generar XML
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    for url in urls:
+        xml += '  <url>\n'
+        xml += f'    <loc>{url["loc"]}</loc>\n'
+        xml += f'    <priority>{url["priority"]}</priority>\n'
+        xml += f'    <changefreq>{url["changefreq"]}</changefreq>\n'
+        xml += '  </url>\n'
+    
+    xml += '</urlset>'
+    
+    response = make_response(xml)
+    response.headers['Content-Type'] = 'application/xml'
+    return response
 
 if __name__ == '__main__':
     # Configuración para desarrollo
