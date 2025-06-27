@@ -248,7 +248,7 @@ def sitemap():
     for producto_id, producto in productos.items():
         for plazo_dias, plazo_info in producto['plazos'].items():
             urls.append({
-                'loc': url_for('calculator', producto_id=producto_id, plazo=plazo_dias, _external=True),
+                'loc': url_for('calculator', producto_id=producto_id, plazo_dias=plazo_dias, _external=True),  # ← Cambiado plazo por plazo_dias
                 'priority': '0.8',
                 'changefreq': 'weekly'
             })
