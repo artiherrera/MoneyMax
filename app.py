@@ -195,6 +195,14 @@ def api_calcular():
         print(f"Error en cálculo: {e}")
         return jsonify({'error': 'Error interno del servidor'}), 500
 
+@app.route('/api/productos')
+def api_productos():
+    """Endpoint API que devuelve todos los productos en JSON"""
+    with open('data/productos.json', 'r', encoding='utf-8') as f:
+        productos_data = json.load(f)
+    
+    return jsonify(productos_data)
+
 @app.route('/health')
 def health():
     """Endpoint para monitoreo"""
