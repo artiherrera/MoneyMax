@@ -7,36 +7,35 @@
       "color_fondo": "#8A2BE2",
       "tipo": "cuenta_inversion",
       "permite_corrida_mensual": true,
-      "badge": "TASA MÁS ALTA",
       "plazos": {
         "7": {
           "nombre": "7 días",
-          "tasa_anual": 12.30,
-          "descripcion": "Inversión a una semana",
+          "tasa_anual": 10.30,
+          "descripcion": "Ahorro Congelado a una semana",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
         },
         "28": {
           "nombre": "28 días",
-          "tasa_anual": 12.62,
-          "descripcion": "Inversión a un mes",
+          "tasa_anual": 10.86,
+          "descripcion": "Ahorro Congelado a un mes",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": true
         },
         "90": {
           "nombre": "90 días",
-          "tasa_anual": 14.00,
-          "descripcion": "Inversión a tres meses",
+          "tasa_anual": 12.00,
+          "descripcion": "Ahorro Congelado a tres meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
         },
         "180": {
           "nombre": "180 días",
-          "tasa_anual": 11.76,
-          "descripcion": "Inversión a seis meses",
+          "tasa_anual": 10.76,
+          "descripcion": "Ahorro Congelado a seis meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
@@ -50,36 +49,35 @@
       "color_fondo": "#32CD32",
       "tipo": "cuenta_inversion",
       "permite_corrida_mensual": true,
-      "badge": "",
       "plazos": {
         "30": {
           "nombre": "30 días",
-          "tasa_anual": 11.00,
-          "descripcion": "Inversión a un mes",
+          "tasa_anual": 10.40,
+          "descripcion": "Inversión a un mes (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": true
         },
         "90": {
           "nombre": "90 días",
-          "tasa_anual": 13.00,
-          "descripcion": "Inversión a tres meses",
+          "tasa_anual": 10.40,
+          "descripcion": "Inversión a tres meses (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
         },
         "180": {
           "nombre": "180 días",
-          "tasa_anual": 11.00,
-          "descripcion": "Inversión a seis meses",
+          "tasa_anual": 10.40,
+          "descripcion": "Inversión a seis meses (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
         },
         "360": {
           "nombre": "360 días",
-          "tasa_anual": 10.00,
-          "descripcion": "Inversión a un año",
+          "tasa_anual": 10.40,
+          "descripcion": "Inversión a un año (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
@@ -93,11 +91,10 @@
       "color_fondo": "#00A86B",
       "tipo": "cuenta_inversion",
       "permite_corrida_mensual": true,
-      "badge": "",
       "plazos": {
         "7": {
           "nombre": "7 días",
-          "tasa_anual": 10.25,
+          "tasa_anual": 8.75,
           "descripcion": "Inversión a una semana",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -105,7 +102,7 @@
         },
         "30": {
           "nombre": "30 días",
-          "tasa_anual": 10.50,
+          "tasa_anual": 9.00,
           "descripcion": "Inversión a un mes",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -113,7 +110,7 @@
         },
         "90": {
           "nombre": "90 días",
-          "tasa_anual": 10.75,
+          "tasa_anual": 9.25,
           "descripcion": "Inversión a tres meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -121,7 +118,7 @@
         },
         "180": {
           "nombre": "180 días",
-          "tasa_anual": 11.50,
+          "tasa_anual": 10.00,
           "descripcion": "Inversión a seis meses",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -129,7 +126,7 @@
         },
         "365": {
           "nombre": "365 días",
-          "tasa_anual": 11.00,
+          "tasa_anual": 9.50,
           "descripcion": "Inversión a un año",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -144,11 +141,10 @@
       "color_fondo": "#1E90FF",
       "tipo": "gubernamental",
       "permite_corrida_mensual": false,
-      "badge": "GOBIERNO",
       "plazos": {
         "28": {
           "nombre": "28 días",
-          "tasa_anual": 9.37,
+          "tasa_anual": 8.00,
           "descripcion": "CETES a 28 días",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -156,7 +152,7 @@
         },
         "91": {
           "nombre": "91 días",
-          "tasa_anual": 9.11,
+          "tasa_anual": 7.93,
           "descripcion": "CETES a 91 días",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -164,7 +160,7 @@
         },
         "182": {
           "nombre": "182 días",
-          "tasa_anual": 9.28,
+          "tasa_anual": 8.09,
           "descripcion": "CETES a 182 días",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -172,7 +168,7 @@
         },
         "364": {
           "nombre": "364 días",
-          "tasa_anual": 9.31,
+          "tasa_anual": 8.27,
           "descripcion": "CETES a 364 días",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
