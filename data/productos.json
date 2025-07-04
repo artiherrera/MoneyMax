@@ -27,7 +27,7 @@
         "90": {
           "nombre": "90 días",
           "tasa_anual": 12.00,
-          "descripcion": "Ahorro Congelado a tres meses",
+          "descripcion": "Ahorro Congelado a tres meses - MEJOR TASA",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
@@ -52,7 +52,7 @@
       "plazos": {
         "30": {
           "nombre": "30 días",
-          "tasa_anual": 10.40,
+          "tasa_anual": 12.50,
           "descripcion": "Inversión a un mes (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -60,7 +60,7 @@
         },
         "90": {
           "nombre": "90 días",
-          "tasa_anual": 10.40,
+          "tasa_anual": 12.50,
           "descripcion": "Inversión a tres meses (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -68,7 +68,7 @@
         },
         "180": {
           "nombre": "180 días",
-          "tasa_anual": 10.40,
+          "tasa_anual": 12.50,
           "descripcion": "Inversión a seis meses (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -76,7 +76,7 @@
         },
         "360": {
           "nombre": "360 días",
-          "tasa_anual": 10.40,
+          "tasa_anual": 12.50,
           "descripcion": "Inversión a un año (GAT 12.50%)",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
@@ -95,7 +95,7 @@
         "7": {
           "nombre": "7 días",
           "tasa_anual": 8.75,
-          "descripcion": "Inversión a una semana",
+          "descripcion": "Inversión flexible a una semana",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
@@ -119,7 +119,7 @@
         "180": {
           "nombre": "180 días",
           "tasa_anual": 10.00,
-          "descripcion": "Inversión a seis meses",
+          "descripcion": "Inversión a seis meses - MEJOR TASA KLAR",
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
@@ -131,6 +131,84 @@
           "tipo_plazo": "fijo",
           "permite_inversion_unica": true,
           "permite_inversion_mensual": false
+        }
+      }
+    },
+    "hey": {
+      "nombre": "Hey Banco",
+      "logo": "https://scontent-qro1-2.xx.fbcdn.net/v/t39.30808-6/502904724_1231559448979825_5483513443914354231_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=I6MemAwarysQ7kNvwHHniMe&_nc_oc=AdniWjJ3_YB24Plm8IBFZmwiS1A_aBu9-JXK6tMTWHme_CatHSio1HS9ZR3drGmMnNZvSg7QCZzAncq_-W0Qzhlb&_nc_zt=23&_nc_ht=scontent-qro1-2.xx&_nc_gid=wSvwDraY5v6NJAYvuORGLA&oh=00_AfOY00U68HG5pZcbF5lhsClEnzVCxoblM784Jq7xEA03aQ&oe=686D31A3",
+      "descripcion": "El primer banco digital de México con respaldo de Banregio",
+      "color_fondo": "#FF6B00",
+      "tipo": "cuenta_inversion",
+      "permite_corrida_mensual": true,
+      "plazos": {
+        "7": {
+          "nombre": "7 días",
+          "tasa_anual": 4.08,
+          "descripcion": "Cliente Hey - GAT nominal 4.08%",
+          "tipo_plazo": "fijo",
+          "permite_inversion_unica": true,
+          "permite_inversion_mensual": false
+        },
+        "28": {
+          "nombre": "28 días",
+          "tasa_anual": 5.12,
+          "descripcion": "Cliente Hey - GAT nominal 5.12%",
+          "tipo_plazo": "fijo",
+          "permite_inversion_unica": true,
+          "permite_inversion_mensual": true
+        }
+      }
+    },
+    "hey_pro": {
+      "nombre": "Hey Pro",
+      "logo": "https://scontent-qro1-2.xx.fbcdn.net/v/t39.30808-6/502904724_1231559448979825_5483513443914354231_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=I6MemAwarysQ7kNvwHHniMe&_nc_oc=AdniWjJ3_YB24Plm8IBFZmwiS1A_aBu9-JXK6tMTWHme_CatHSio1HS9ZR3drGmMnNZvSg7QCZzAncq_-W0Qzhlb&_nc_zt=23&_nc_ht=scontent-qro1-2.xx&_nc_gid=wSvwDraY5v6NJAYvuORGLA&oh=00_AfOY00U68HG5pZcbF5lhsClEnzVCxoblM784Jq7xEA03aQ&oe=686D31A3",
+      "descripcion": "Hey Pro - Tasa exclusiva para clientes Hey Pro y Membresía Fan",
+      "color_fondo": "#FF6B00",
+      "tipo": "cuenta_inversion",
+      "permite_corrida_mensual": true,
+      "plazos": {
+        "7": {
+          "nombre": "7 días",
+          "tasa_anual": 8.32,
+          "descripcion": "Hey Pro - GAT nominal 8.32%",
+          "tipo_plazo": "fijo",
+          "permite_inversion_unica": true,
+          "permite_inversion_mensual": false
+        },
+        "28": {
+          "nombre": "28 días",
+          "tasa_anual": 10.47,
+          "descripcion": "Hey Pro - GAT nominal 10.47%",
+          "tipo_plazo": "fijo",
+          "permite_inversion_unica": true,
+          "permite_inversion_mensual": true
+        }
+      }
+    },
+    "hey_negocios": {
+      "nombre": "Hey Negocios",
+      "logo": "https://scontent-qro1-2.xx.fbcdn.net/v/t39.30808-6/502904724_1231559448979825_5483513443914354231_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=I6MemAwarysQ7kNvwHHniMe&_nc_oc=AdniWjJ3_YB24Plm8IBFZmwiS1A_aBu9-JXK6tMTWHme_CatHSio1HS9ZR3drGmMnNZvSg7QCZzAncq_-W0Qzhlb&_nc_zt=23&_nc_ht=scontent-qro1-2.xx&_nc_gid=wSvwDraY5v6NJAYvuORGLA&oh=00_AfOY00U68HG5pZcbF5lhsClEnzVCxoblM784Jq7xEA03aQ&oe=686D31A3",
+      "descripcion": "Cuenta empresarial con tasas competitivas para negocios",
+      "color_fondo": "#FF6B00",
+      "tipo": "cuenta_inversion",
+      "permite_corrida_mensual": true,
+      "plazos": {
+        "7": {
+          "nombre": "7 días",
+          "tasa_anual": 7.25,
+          "descripcion": "Hey Negocios - GAT nominal 7.25%",
+          "tipo_plazo": "fijo",
+          "permite_inversion_unica": true,
+          "permite_inversion_mensual": false
+        },
+        "28": {
+          "nombre": "28 días",
+          "tasa_anual": 7.76,
+          "descripcion": "Hey Negocios - GAT nominal 7.76%",
+          "tipo_plazo": "fijo",
+          "permite_inversion_unica": true,
+          "permite_inversion_mensual": true
         }
       }
     },
