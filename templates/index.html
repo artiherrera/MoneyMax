@@ -19,6 +19,10 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
 {% block title %}MoneyMax - Calculadora de Inversiones Mexicanas{% endblock %}
 
 {% block head %}
+<title>{% block title_tag %}{{ self.title() }}{% endblock %}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 /* ──────────── CSS VARIABLES DINÁMICAS ──────────── */
 :root {
@@ -30,8 +34,8 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
     --accent: #8b5cf6;
 }
 
-/* ──────────── HERO SECTION - RESISTENTE A ADSENSE ──────────── */
-.hero {
+/* ──────────── HERO SECTION - ANTI-ADSENSE ──────────── */
+section.hero {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%) !important;
     color: white !important;
     padding: 4rem 0 3rem !important;
@@ -40,9 +44,10 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
     min-height: 400px !important;
     display: flex !important;
     align-items: center !important;
+    z-index: 1000 !important;
 }
 
-.hero::before {
+section.hero::before {
     content: '' !important;
     position: absolute !important;
     top: 0 !important;
@@ -52,6 +57,7 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') !important;
     animation: float 20s ease-in-out infinite !important;
     pointer-events: none !important;
+    z-index: 1 !important;
 }
 
 @keyframes float {
@@ -59,14 +65,14 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
     50% { transform: translateY(-10px); }
 }
 
-.hero-content {
+section.hero .hero-content {
     position: relative !important;
     z-index: 10 !important;
     text-align: center !important;
     width: 100% !important;
 }
 
-.hero-title {
+section.hero h1.hero-title {
     font-size: 3.5rem !important;
     font-weight: 800 !important;
     line-height: 1.1 !important;
@@ -76,9 +82,10 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
     display: block !important;
+    color: white !important;
 }
 
-.hero-divider {
+section.hero .hero-divider {
     width: 80px !important;
     height: 4px !important;
     background: linear-gradient(90deg, #06b6d4, #67e8f9) !important;
@@ -92,7 +99,7 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
     50% { opacity: 0.7; transform: scaleX(1.1); }
 }
 
-.hero-subtitle {
+section.hero p.hero-subtitle {
     font-size: 1.25rem !important;
     max-width: 32rem !important;
     margin: 0 auto !important;
@@ -101,23 +108,31 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Protección adicional contra AdSense */
-.hero * {
+/* Protección MÁXIMA contra AdSense */
+section.hero *,
+section.hero *:before,
+section.hero *:after {
+    background: inherit !important;
     color: inherit !important;
 }
 
-.hero .container {
+section.hero .container {
     position: relative !important;
     z-index: 5 !important;
+    background: transparent !important;
 }
 
-/* Asegurar que AdSense no interfiera */
-.hero [class*="google"],
-.hero [id*="google"],
-.hero [class*="adsbygoogle"],
-.hero ins {
+/* Eliminar CUALQUIER interferencia de Google */
+section.hero [class*="google"],
+section.hero [id*="google"],
+section.hero [class*="adsbygoogle"],
+section.hero ins,
+section.hero iframe {
     display: none !important;
     visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* ──────────── PRODUCTS SECTION ──────────── */
@@ -422,7 +437,7 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
 
 /* ──────────── RESPONSIVE DESIGN ──────────── */
 @media (max-width: 768px) {
-    .hero-title {
+    section.hero h1.hero-title {
         font-size: 2.5rem !important;
     }
     
@@ -447,11 +462,11 @@ Encuentra la mejor inversión mexicana. Compara tasas de CETES, Nu, Stori y Klar
 }
 
 @media (max-width: 480px) {
-    .hero {
+    section.hero {
         padding: 3rem 0 2rem !important;
     }
     
-    .hero-title {
+    section.hero h1.hero-title {
         font-size: 2rem !important;
     }
     
